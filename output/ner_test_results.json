@@ -1,0 +1,139 @@
+{
+  "original_text": "Patient is a 45-year-old male who presents with fever, dry cough, and fatigue for the past 3 days. Patient also reports loss of taste and smell since yesterday.\n\nVitals: Temp 38.5\u00b0C, HR 95, BP 128/82, RR 18, O2 Sat 94% on room air. Physical exam reveals mild respiratory distress. Lungs with scattered rhonchi bilaterally. No rales or wheezes.\n\nAssessment: Clinical presentation consistent with COVID-19 infection. Plan: COVID-19 PCR test ordered. Patient advised to self-isolate pending results. Symptomatic treatment with acetaminophen for fever. Follow up in 2-3 days.",
+  "entities": {
+    "SYMPTOM": [
+      {
+        "text": "fever",
+        "start": 48,
+        "end": 53
+      },
+      {
+        "text": "fever",
+        "start": 542,
+        "end": 547
+      },
+      {
+        "text": "cough",
+        "start": 59,
+        "end": 64
+      },
+      {
+        "text": "fatigue",
+        "start": 70,
+        "end": 77
+      },
+      {
+        "text": "loss of taste",
+        "start": 120,
+        "end": 133
+      }
+    ],
+    "TIME": [
+      {
+        "text": "Patient is a 45-year-old male who presents with fever, dry cough, and fatigue for the past 3 days. Patient also reports loss of taste and smell since yesterday",
+        "start": 0,
+        "end": 159
+      },
+      {
+        "text": "Patient is a 45-year-old male who presents with fever, dry cough, and fatigue for the past 3 days. Patient also reports loss of taste and smell since",
+        "start": 0,
+        "end": 149
+      },
+      {
+        "text": "Patient is a 45-year-old male who presents with fever, dry cough, and fatigue for the past",
+        "start": 0,
+        "end": 90
+      },
+      {
+        "text": "Patient is a 45-year-old male who presents with fever, dry cough, and fatigue for the past 3 days",
+        "start": 0,
+        "end": 97
+      },
+      {
+        "text": "Assessment: Clinical presentation consistent with COVID-19 infection. Plan: COVID-19 PCR test ordered. Patient advised to self-isolate pending results. Symptomatic treatment with acetaminophen for fever. Follow up in 2-3 days",
+        "start": 345,
+        "end": 570
+      }
+    ],
+    "SEVERITY": [
+      {
+        "text": "mild respiratory",
+        "start": 254,
+        "end": 270
+      }
+    ]
+  },
+  "transformer_formatted": {
+    "original_text": "Patient is a 45-year-old male who presents with fever, dry cough, and fatigue for the past 3 days. Patient also reports loss of taste and smell since yesterday.\n\nVitals: Temp 38.5\u00b0C, HR 95, BP 128/82, RR 18, O2 Sat 94% on room air. Physical exam reveals mild respiratory distress. Lungs with scattered rhonchi bilaterally. No rales or wheezes.\n\nAssessment: Clinical presentation consistent with COVID-19 infection. Plan: COVID-19 PCR test ordered. Patient advised to self-isolate pending results. Symptomatic treatment with acetaminophen for fever. Follow up in 2-3 days.",
+    "entity_count": 11,
+    "entities": [
+      {
+        "text": "Patient is a 45-year-old male who presents with fever, dry cough, and fatigue for the past 3 days. Patient also reports loss of taste and smell since yesterday",
+        "type": "TIME",
+        "start": 0,
+        "end": 159
+      },
+      {
+        "text": "Patient is a 45-year-old male who presents with fever, dry cough, and fatigue for the past 3 days. Patient also reports loss of taste and smell since",
+        "type": "TIME",
+        "start": 0,
+        "end": 149
+      },
+      {
+        "text": "Patient is a 45-year-old male who presents with fever, dry cough, and fatigue for the past",
+        "type": "TIME",
+        "start": 0,
+        "end": 90
+      },
+      {
+        "text": "Patient is a 45-year-old male who presents with fever, dry cough, and fatigue for the past 3 days",
+        "type": "TIME",
+        "start": 0,
+        "end": 97
+      },
+      {
+        "text": "fever",
+        "type": "SYMPTOM",
+        "start": 48,
+        "end": 53
+      },
+      {
+        "text": "cough",
+        "type": "SYMPTOM",
+        "start": 59,
+        "end": 64
+      },
+      {
+        "text": "fatigue",
+        "type": "SYMPTOM",
+        "start": 70,
+        "end": 77
+      },
+      {
+        "text": "loss of taste",
+        "type": "SYMPTOM",
+        "start": 120,
+        "end": 133
+      },
+      {
+        "text": "mild respiratory",
+        "type": "SEVERITY",
+        "start": 254,
+        "end": 270
+      },
+      {
+        "text": "Assessment: Clinical presentation consistent with COVID-19 infection. Plan: COVID-19 PCR test ordered. Patient advised to self-isolate pending results. Symptomatic treatment with acetaminophen for fever. Follow up in 2-3 days",
+        "type": "TIME",
+        "start": 345,
+        "end": 570
+      },
+      {
+        "text": "fever",
+        "type": "SYMPTOM",
+        "start": 542,
+        "end": 547
+      }
+    ],
+    "formatted_text": "Patient is a 45-year-old male who presents with fever, dry cough, and fatigue for the past 3 days. Patient also reports loss of taste and smell since yesterday [TIME] Patient is a 45-year-old male who presents with fever, dry cough, and fatigue for the past 3 days. Patient also reports loss of taste and smell since [TIME] Patient is a 45-year-old male who presents with fever, dry cough, and fatigue for the past [TIME] Patient is a 45-year-old male who presents with fever, dry cough, and fatigue for the past 3 days [TIME] fever [SYMPTOM] cough [SYMPTOM] fatigue [SYMPTOM] loss of taste [SYMPTOM] mild respiratory [SEVERITY] Assessment: Clinical presentation consistent with COVID-19 infection. Plan: COVID-19 PCR test ordered. Patient advised to self-isolate pending results. Symptomatic treatment with acetaminophen for fever. Follow up in 2-3 days [TIME] fever [SYMPTOM]"
+  }
+}
