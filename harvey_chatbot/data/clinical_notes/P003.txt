@@ -1,0 +1,60 @@
+CLINICAL ENCOUNTER NOTE
+Patient: Sophia Chen
+Date: 2023-04-14
+Provider: Dr. Michael Rodriguez
+
+CHIEF COMPLAINT:
+Headache, sore throat, and runny nose for 2 days.
+
+HISTORY OF PRESENT ILLNESS:
+28-year-old female presenting with headache, sore throat, and runny nose that started 2 days ago. Describes headache as frontal, moderate intensity, partially relieved with acetaminophen. Reports clear nasal discharge and mild throat discomfort. No fever, cough, shortness of breath, or loss of taste/smell. Reports adequate oral intake and no other systemic symptoms. Recently started a new job at a local school. No known COVID-19 exposure. Fully vaccinated against COVID-19 with booster 4 months ago.
+
+PAST MEDICAL HISTORY:
+Migraine headaches (infrequent)
+Seasonal allergies
+No prior COVID-19 infection
+
+MEDICATIONS:
+Oral contraceptive pills
+Sumatriptan PRN for migraines
+Loratadine 10mg daily for allergies
+
+ALLERGIES:
+Sulfa drugs (hives)
+
+PHYSICAL EXAMINATION:
+Vitals: Temp 98.7°F, HR 72, BP 118/76, RR 16, O2 Sat 99% on room air
+General: Alert, oriented, in no acute distress. Well-appearing.
+HEENT: Nasal mucosa erythematous with clear discharge. Oropharynx mildly erythematous without exudates. TMs normal bilaterally.
+Neck: Supple. No lymphadenopathy.
+Lungs: Clear to auscultation bilaterally. No wheezing, rales, or rhonchi.
+Cardiovascular: Regular rate and rhythm. No murmurs.
+Abdomen: Soft, non-tender, non-distended.
+Extremities: No edema. Full range of motion.
+Neuro: Cranial nerves intact. No focal deficits.
+
+LABORATORY DATA:
+CBC: WBC 7.8, Lymphocytes 2.1, Hemoglobin 13.8, Platelets 245
+CRP: 5.2 (slightly elevated)
+COVID-19 PCR: Pending
+COVID-19 Rapid Antigen: Negative
+Rapid Strep: Negative
+
+ASSESSMENT:
+1. Upper respiratory infection, likely viral
+2. Seasonal allergies, contributing
+3. Migraine headache, resolving
+
+PLAN:
+1. Symptomatic treatment:
+   - Acetaminophen 500mg q6h PRN headache and sore throat
+   - Saline nasal spray for congestion
+   - Lozenges for sore throat
+2. Continue loratadine for allergies
+3. Adequate hydration and rest
+4. Return to work after 24 hours fever-free (if COVID-19 test is negative)
+5. Return precautions discussed for worsening symptoms, including fever >101°F, difficulty breathing, or persistent symptoms beyond 5-7 days
+6. COVID-19 PCR results will be available in 24-48 hours
+7. Telemedicine follow-up if COVID-19 positive or symptoms worsen
+
+Patient verbalizes understanding of diagnosis and plan.

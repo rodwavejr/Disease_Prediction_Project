@@ -86,7 +86,7 @@ We'll gather data from multiple sources:
 
 We have successfully implemented:
 
-1. **Data Collection Module**: Tools for gathering medical text data from various sources, including synthetic data generation for demonstration purposes.
+1. **Data Collection Module**: Tools for gathering medical text data from various sources like CDC data, clinical trials and medical literature.
 
 2. **Named Entity Recognition (NER) Module**: Methods for extracting medical entities from unstructured text, with three implementation options:
    - Rule-based NER using regex patterns

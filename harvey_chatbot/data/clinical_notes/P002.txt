@@ -1,0 +1,66 @@
+CLINICAL ENCOUNTER NOTE
+Patient: Thomas Mitchell
+Date: 2023-04-16
+Provider: Dr. James Chen
+
+CHIEF COMPLAINT:
+Shortness of breath, fever, chest pain, and cough for 3 days.
+
+HISTORY OF PRESENT ILLNESS:
+65-year-old male with history of hypertension and type 2 diabetes presenting with worsening shortness of breath, persistent fever, chest pain, and productive cough for the past 3 days. Reports temperature up to 101.5°F at home. Describes chest pain as constant, moderate in intensity, non-radiating, and worse with coughing and deep breathing. Progressive dyspnea over the past 24 hours, now occurring with minimal exertion. Patient lives in a nursing home where several residents have recently tested positive for COVID-19. Fully vaccinated against COVID-19 but has not received a booster.
+
+PAST MEDICAL HISTORY:
+Hypertension (diagnosed 12 years ago)
+Type 2 Diabetes (diagnosed 8 years ago)
+Osteoarthritis (knees)
+S/P cholecystectomy (2010)
+
+MEDICATIONS:
+Lisinopril 20mg daily
+Metformin 1000mg BID
+Glipizide 5mg daily
+Acetaminophen 500mg PRN for pain
+Aspirin 81mg daily
+
+ALLERGIES:
+Penicillin (rash)
+
+PHYSICAL EXAMINATION:
+Vitals: Temp 100.9°F, HR 105, BP 145/90, RR 24, O2 Sat 88% on room air, 94% on 2L O2 via nasal cannula
+General: Elderly male in moderate respiratory distress. Alert but fatigued.
+HEENT: Oropharynx clear. No nasal discharge.
+Neck: Supple. No JVD. No lymphadenopathy.
+Lungs: Diffuse crackles bilaterally, more pronounced at bases. No wheezing.
+Cardiovascular: Tachycardic. Regular rhythm. No murmurs.
+Abdomen: Soft, non-tender, non-distended.
+Extremities: Trace bilateral lower extremity edema. No cyanosis.
+Neuro: Alert and oriented to person, place, and time. No focal neurological deficits.
+
+LABORATORY DATA:
+CBC: WBC 12.4 (elevated), Lymphocytes 0.6 (decreased), Hemoglobin 13.1, Platelets 180
+CMP: Glucose 245, otherwise within normal limits
+CRP: 78.3 (markedly elevated)
+D-dimer: 1.2 (elevated)
+Ferritin: 645 (elevated)
+Procalcitonin: 0.8
+COVID-19 PCR: Pending
+Chest X-ray: Bilateral patchy infiltrates consistent with viral pneumonia
+
+ASSESSMENT:
+1. Acute hypoxic respiratory failure due to suspected COVID-19 pneumonia
+2. Hypertension, poorly controlled
+3. Type 2 Diabetes mellitus, poorly controlled
+
+PLAN:
+1. Admit to COVID-19 unit for management of hypoxic respiratory failure
+2. Supplemental oxygen to maintain SpO2 > 94%
+3. Start remdesivir and dexamethasone per COVID-19 protocol
+4. IV fluids for hydration
+5. Empiric ceftriaxone and azithromycin pending cultures
+6. Continue home medications with adjustment of insulin regimen
+7. Deep vein thrombosis prophylaxis
+8. Monitor for clinical deterioration
+9. Pulmonology consult
+10. Discussed case with nursing home for contact tracing
+
+Patient understands the severity of his condition and the need for hospitalization.

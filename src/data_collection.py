@@ -1,17 +1,51 @@
 """
 Tools for collecting and preprocessing medical text data from various sources.
+
+This module includes both synthetic data generation functions (for demonstration/development)
+and real data collection functions. The synthetic generation will be replaced by real data
+as it becomes available.
 """
 
-import requests
-import pandas as pd
-import numpy as np
 import os
 import re
 import json
-from bs4 import BeautifulSoup
 from datetime import datetime
-from nltk.tokenize import sent_tokenize
 import logging
+
+# Handle import errors gracefully for better user experience
+try:
+    import requests
+except ImportError:
+    print("Warning: 'requests' package not found. Real data fetching will be disabled.")
+    print("Install with: pip install requests")
+    requests = None
+
+try:
+    import pandas as pd
+    import numpy as np
+except ImportError:
+    print("Warning: 'pandas' or 'numpy' package not found. Some functionality will be limited.")
+    print("Install with: pip install pandas numpy")
+    pd = None
+    np = None
+    
+try:
+    from bs4 import BeautifulSoup
+except ImportError:
+    print("Warning: 'beautifulsoup4' package not found. HTML parsing will be disabled.")
+    print("Install with: pip install beautifulsoup4")
+    BeautifulSoup = None
+    
+try:
+    from nltk.tokenize import sent_tokenize
+except ImportError:
+    print("Warning: 'nltk' package not found. Sentence tokenization will use basic fallback.")
+    print("Install with: pip install nltk")
+    
+    # Fallback tokenizer
+    def sent_tokenize(text):
+        """Simple fallback tokenizer that splits on periods."""
+        return [s.strip() + '.' for s in text.split('.') if s.strip()]
 
 # Set up logging
 logging.basicConfig(
@@ -27,6 +61,122 @@ COVID_SYMPTOMS = [
     'loss of smell', 'sore throat', 'congestion', 'runny nose', 'nausea',
     'vomiting', 'diarrhea', 'chills'
 ]
+
+# This flag determines whether to use synthetic or real data
+# Set to False when real data is available
+USE_SYNTHETIC_DATA = True
+
+def generate_synthetic_medical_text(covid_focus=True, length='medium'):
+    """
+    Generate synthetic medical text for development and testing.
+    
+    Parameters:
+    -----------
+    covid_focus : bool
+        Whether to focus on COVID-19 related content
+    length : str
+        Length of text to generate ('short', 'medium', 'long')
+        
+    Returns:
+    --------
+    str
+        Generated medical text
+    """
+    # Base symptoms for text generation
+    if covid_focus:
+        symptoms = [
+            "fever of 101.3F", "persistent dry cough", "fatigue", 
+            "shortness of breath", "loss of taste", "loss of smell",
+            "body aches", "headache", "sore throat", "congestion",
+            "nausea", "diarrhea"
+        ]
+        
+        conditions = [
+            "COVID-19", "SARS-CoV-2 infection", "coronavirus",
+            "respiratory infection", "viral pneumonia"
+        ]
+        
+        severity = [
+            "mild", "moderate", "severe", "critical",
+            "requiring hospitalization", "requiring supplemental oxygen"
+        ]
+    else:
+        symptoms = [
+            "cough", "fever", "headache", "nausea", "vomiting", 
+            "abdominal pain", "chest pain", "back pain", "dizziness",
+            "fatigue", "weakness", "rash"
+        ]
+        
+        conditions = [
+            "common cold", "influenza", "pneumonia", "bronchitis",
+            "strep throat", "sinusitis", "gastroenteritis"
+        ]
+        
+        severity = [
+            "mild", "moderate", "severe",
+            "self-limiting", "improving", "worsening"
+        ]
+    
+    # Medication mentions
+    medications = [
+        "acetaminophen", "ibuprofen", "azithromycin", "albuterol inhaler",
+        "dexamethasone", "remdesivir", "hydroxychloroquine", "zinc supplements",
+        "vitamin D", "cough suppressant"
+    ]
+    
+    # Time expressions
+    time_expressions = [
+        "started 3 days ago", "began yesterday", "for the past week",
+        "since last Tuesday", "for 5 days", "intermittent for 2 weeks",
+        "worsening over 24 hours", "improving in the last 2 days"
+    ]
+    
+    # Generate text based on length
+    if length == 'short':
+        num_sentences = np.random.randint(2, 5)
+    elif length == 'medium':
+        num_sentences = np.random.randint(5, 10)
+    else:  # long
+        num_sentences = np.random.randint(10, 15)
+    
+    # Template sentences
+    templates = [
+        "Patient presents with {symptom}, which {time}.",
+        "Patient reports {symptom} and {symptom}, {severity} in nature.",
+        "Examination reveals {symptom}.",
+        "Patient was diagnosed with {condition} and prescribed {medication}.",
+        "Symptoms include {symptom}, {symptom}, and {symptom}.",
+        "Patient describes {symptom} {time}.",
+        "Patient denies {symptom} but confirms {symptom}.",
+        "Treatment with {medication} was initiated for {symptom}.",
+        "{condition} is suspected based on {symptom} and {symptom}.",
+        "Patient has a history of {condition} and now presents with {symptom}."
+    ]
+    
+    # Generate sentences
+    sentences = []
+    for _ in range(num_sentences):
+        template = np.random.choice(templates)
+        
+        # Fill in template with random choices
+        sentence = template
+        while "{symptom}" in sentence:
+            sentence = sentence.replace("{symptom}", np.random.choice(symptoms), 1)
+        while "{condition}" in sentence:
+            sentence = sentence.replace("{condition}", np.random.choice(conditions), 1)
+        while "{severity}" in sentence:
+            sentence = sentence.replace("{severity}", np.random.choice(severity), 1)
+        while "{medication}" in sentence:
+            sentence = sentence.replace("{medication}", np.random.choice(medications), 1)
+        while "{time}" in sentence:
+            sentence = sentence.replace("{time}", np.random.choice(time_expressions), 1)
+        
+        sentences.append(sentence)
+    
+    # Join sentences into a paragraph
+    text = " ".join(sentences)
+    
+    return text
 
 def fetch_cord19_dataset(output_dir, limit=100):
     """
@@ -44,17 +194,17 @@ def fetch_cord19_dataset(output_dir, limit=100):
     str
         Path to the saved file
     """
-    # Example URL for CORD-19 dataset (this would need to be updated to a current source)
-    # In a real implementation, you might download from Kaggle or similar
-    cord19_url = "https://ai2-semanticscholar-cord-19.s3-us-west-2.amazonaws.com/latest/metadata.csv"
+    # Create output directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
     
-    try:
-        logger.info(f"Fetching CORD-19 dataset sample (limit: {limit})")
-        # For demonstration, we're just creating synthetic data
-        # In a real implementation, you would:
-        # df = pd.read_csv(cord19_url)
+    # Output path will be the same for both synthetic and real data
+    output_path = os.path.join(output_dir, "cord19_sample.csv")
+    
+    # Check if we should use synthetic data
+    if USE_SYNTHETIC_DATA:
+        logger.info(f"Generating synthetic CORD-19 data (limit: {limit})")
         
-        # Create synthetic data for demonstration
+        # Generate synthetic data for demonstration
         data = []
         for i in range(limit):
             data.append({
@@ -66,19 +216,64 @@ def fetch_cord19_dataset(output_dir, limit=100):
         
         df = pd.DataFrame(data)
         
-        # Create output directory if it doesn't exist
-        os.makedirs(output_dir, exist_ok=True)
-        
         # Save to disk
-        output_path = os.path.join(output_dir, "cord19_sample.csv")
         df.to_csv(output_path, index=False)
-        logger.info(f"Saved CORD-19 sample to {output_path}")
+        logger.info(f"Saved synthetic CORD-19 sample to {output_path}")
         
         return output_path
+    
+    else:
+        # URL for CORD-19 dataset
+        cord19_url = "https://ai2-semanticscholar-cord-19.s3-us-west-2.amazonaws.com/latest/metadata.csv"
         
-    except Exception as e:
-        logger.error(f"Error fetching CORD-19 dataset: {e}")
-        return None
+        try:
+            logger.info(f"Fetching real CORD-19 dataset sample (limit: {limit})")
+            
+            # Create a requests session
+            session = requests.Session()
+            
+            # Download the dataset
+            response = session.get(cord19_url)
+            response.raise_for_status()
+            
+            # Save raw CSV
+            raw_path = os.path.join(output_dir, "cord19_full.csv")
+            with open(raw_path, 'wb') as f:
+                f.write(response.content)
+            
+            # Read and limit the dataset
+            # Use error_bad_lines=False (renamed to on_bad_lines='skip' in newer pandas) to skip problematic lines
+            try:
+                # For newer pandas versions
+                df = pd.read_csv(raw_path, on_bad_lines='skip')
+                logger.info("Using pandas with on_bad_lines='skip' to handle malformed lines")
+            except TypeError:
+                # For older pandas versions
+                df = pd.read_csv(raw_path, error_bad_lines=False)
+                logger.info("Using pandas with error_bad_lines=False to handle malformed lines")
+            
+            logger.info(f"Successfully loaded CORD-19 dataset with {len(df)} entries")
+            
+            # Select a random sample to avoid bias from only taking the first rows
+            if len(df) > limit:
+                df_sample = df.sample(limit, random_state=42)
+            else:
+                df_sample = df
+                
+            logger.info(f"Selected {len(df_sample)} entries from CORD-19 dataset")
+            
+            # Save sample to disk
+            df_sample.to_csv(output_path, index=False)
+            logger.info(f"Saved real CORD-19 sample to {output_path}")
+            
+            return output_path
+            
+        except Exception as e:
+            logger.error(f"Error fetching real CORD-19 dataset: {e}")
+            
+            # If real data fetch fails, fall back to synthetic
+            logger.info("Falling back to synthetic CORD-19 data")
+            return fetch_cord19_dataset(output_dir, limit)
 
 def fetch_cdc_guidelines(output_dir):
     """
@@ -94,20 +289,20 @@ def fetch_cdc_guidelines(output_dir):
     str
         Path to the saved file
     """
-    # CDC symptoms page URL
-    cdc_url = "https://www.cdc.gov/coronavirus/2019-ncov/symptoms-testing/symptoms.html"
+    # Create output directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
     
-    try:
-        logger.info("Fetching CDC COVID-19 guidelines")
-        # In a real implementation, you would do:
-        # response = requests.get(cdc_url)
-        # soup = BeautifulSoup(response.text, 'html.parser')
-        # content = extract_content_from_soup(soup)
+    # Output path for both synthetic and real data
+    output_path = os.path.join(output_dir, "cdc_guidelines.json")
+    
+    # Use synthetic or real data based on flag
+    if USE_SYNTHETIC_DATA:
+        logger.info("Creating synthetic CDC COVID-19 guidelines")
         
-        # For demonstration, create synthetic CDC guidelines
+        # Create synthetic CDC guidelines
         content = {
             "source": "CDC",
-            "url": cdc_url,
+            "url": "https://www.cdc.gov/coronavirus/2019-ncov/symptoms-testing/symptoms.html",
             "fetch_date": datetime.now().strftime("%Y-%m-%d"),
             "symptoms": [
                 {
@@ -155,305 +350,55 @@ def fetch_cdc_guidelines(output_dir):
             ]
         }
         
-        # Create output directory if it doesn't exist
-        os.makedirs(output_dir, exist_ok=True)
-        
         # Save to disk
-        output_path = os.path.join(output_dir, "cdc_guidelines.json")
         with open(output_path, 'w') as f:
             json.dump(content, f, indent=2)
         
-        logger.info(f"Saved CDC guidelines to {output_path}")
+        logger.info(f"Saved synthetic CDC guidelines to {output_path}")
         return output_path
         
-    except Exception as e:
-        logger.error(f"Error fetching CDC guidelines: {e}")
-        return None
-
-def scrape_medical_forum(forum_url, num_pages=1, output_dir=None):
-    """
-    Scrape medical forum discussions about COVID-19 symptoms.
-    
-    Parameters:
-    -----------
-    forum_url : str
-        URL of the medical forum
-    num_pages : int
-        Number of pages to scrape
-    output_dir : str
-        Directory to save the data
+    else:
+        # CDC symptoms page URL
+        cdc_url = "https://www.cdc.gov/coronavirus/2019-ncov/symptoms-testing/symptoms.html"
         
-    Returns:
-    --------
-    list
-        List of forum posts
-    """
-    # This is a placeholder for actual web scraping code
-    # In a real implementation, you would use requests and BeautifulSoup
-    
-    logger.info(f"Scraping medical forum: {forum_url}")
-    
-    # Generate synthetic forum posts for demonstration
-    posts = []
-    for i in range(50):
-        post = {
-            "post_id": f"post_{i}",
-            "title": f"Experiencing COVID symptoms - need advice (Thread {i})",
-            "content": generate_synthetic_medical_text(is_forum=True),
-            "date": "2021-08-15",
-            "user_id": f"user_{np.random.randint(1, 100)}",
-            "replies": []
-        }
-        
-        # Add some replies
-        num_replies = np.random.randint(0, 5)
-        for j in range(num_replies):
-            reply = {
-                "reply_id": f"reply_{i}_{j}",
-                "content": generate_synthetic_medical_text(is_reply=True),
-                "date": "2021-08-16",
-                "user_id": f"user_{np.random.randint(1, 100)}"
+        try:
+            logger.info("Fetching real CDC COVID-19 guidelines")
+            
+            # Create a requests session
+            session = requests.Session()
+            
+            # Get the CDC page
+            response = session.get(cdc_url)
+            response.raise_for_status()
+            
+            # Parse the HTML
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Extract relevant content (this is simplified and would need to be adapted to the actual page structure)
+            symptoms_section = soup.find('div', {'id': 'symptoms-body-text'})
+            
+            # Create content object
+            content = {
+                "source": "CDC",
+                "url": cdc_url,
+                "fetch_date": datetime.now().strftime("%Y-%m-%d"),
+                "html_content": str(symptoms_section),
+                "text_content": symptoms_section.get_text() if symptoms_section else ""
             }
-            post["replies"].append(reply)
-        
-        posts.append(post)
-    
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-        output_path = os.path.join(output_dir, "forum_posts.json")
-        with open(output_path, 'w') as f:
-            json.dump(posts, f, indent=2)
-        logger.info(f"Saved forum posts to {output_path}")
-    
-    return posts
-
-def download_synthetic_ehr_data(output_dir, num_records=100):
-    """
-    Download or generate synthetic EHR data for COVID-19 cases.
-    
-    Parameters:
-    -----------
-    output_dir : str
-        Directory to save the data
-    num_records : int
-        Number of synthetic records to generate
-        
-    Returns:
-    --------
-    str
-        Path to the saved file
-    """
-    logger.info(f"Generating {num_records} synthetic EHR records")
-    
-    records = []
-    for i in range(num_records):
-        has_covid = np.random.random() > 0.6  # 40% of records have COVID
-        
-        record = {
-            "patient_id": f"PT{i:06d}",
-            "age": np.random.randint(18, 85),
-            "gender": np.random.choice(["M", "F"]),
-            "admission_date": "2021-01-15",
-            "chief_complaint": generate_chief_complaint(has_covid),
-            "clinical_notes": generate_synthetic_clinical_note(has_covid),
-            "diagnosis": "COVID-19" if has_covid else np.random.choice([
-                "Influenza", "Common cold", "Allergic rhinitis", 
-                "Bronchitis", "Pneumonia", "Upper respiratory infection"
-            ]),
-            "has_covid": has_covid
-        }
-        records.append(record)
-    
-    # Create output directory if it doesn't exist
-    os.makedirs(output_dir, exist_ok=True)
-    
-    # Save as CSV
-    df = pd.DataFrame(records)
-    output_path = os.path.join(output_dir, "synthetic_ehr_data.csv")
-    df.to_csv(output_path, index=False)
-    
-    logger.info(f"Saved synthetic EHR data to {output_path}")
-    return output_path
-
-def generate_synthetic_medical_text(is_forum=False, is_reply=False):
-    """
-    Generate synthetic medical text for demonstration purposes.
-    
-    Parameters:
-    -----------
-    is_forum : bool
-        Whether this is a forum post
-    is_reply : bool
-        Whether this is a reply to a forum post
-        
-    Returns:
-    --------
-    str
-        Synthetic medical text
-    """
-    # Symptoms
-    symptoms = [
-        "fever", "cough", "shortness of breath", "fatigue", 
-        "muscle aches", "headache", "loss of taste", "loss of smell",
-        "sore throat", "congestion", "nausea", "diarrhea"
-    ]
-    
-    # Time expressions
-    times = [
-        "since yesterday", "for the past 3 days", "starting last week",
-        "for about 24 hours", "intermittently for several days"
-    ]
-    
-    # Severities
-    severities = ["mild", "moderate", "severe", "intense", "slight"]
-    
-    # Generate text based on context
-    if is_reply:
-        templates = [
-            "It sounds like you might have COVID-19. I had similar symptoms last month and tested positive.",
-            "Those symptoms are consistent with COVID. You should get tested ASAP.",
-            "Could be COVID or just a regular cold. The loss of taste/smell is a telling sign though.",
-            "I experienced something similar. For me it was {symptom} and {symptom} {time}.",
-            "When I had COVID, my main symptoms were {symptom} and {severity} {symptom}.",
-        ]
-    elif is_forum:
-        templates = [
-            "I've been experiencing {symptom} and {symptom} {time}. Could this be COVID?",
-            "Started having {severity} {symptom} {time}, followed by {symptom}. Should I get tested?",
-            "My symptoms: {symptom}, {symptom}, and {symptom}. No fever though. Worried it's COVID.",
-            "Woke up with {severity} {symptom} and {symptom}. Has anyone had COVID start like this?",
-            "Been having {symptom} {time}. Also {symptom} and {symptom}. What should I do?"
-        ]
-    else:
-        # Clinical/academic text
-        templates = [
-            "Patient presented with {symptom} and {severity} {symptom} {time}.",
-            "The most common symptoms observed were {symptom}, {symptom}, and {symptom}.",
-            "Clinical manifestations include {symptom}, often accompanied by {symptom}.",
-            "Initial symptoms typically include {severity} {symptom}, {symptom}, and {symptom}.",
-            "COVID-19 patients frequently report {symptom} and {symptom} {time}."
-        ]
-    
-    # Select random template and fill in placeholders
-    template = np.random.choice(templates)
-    text = template
-    
-    # Replace placeholders
-    while "{symptom}" in text:
-        text = text.replace("{symptom}", np.random.choice(symptoms), 1)
-    
-    while "{time}" in text:
-        text = text.replace("{time}", np.random.choice(times), 1)
-    
-    while "{severity}" in text:
-        text = text.replace("{severity}", np.random.choice(severities), 1)
-    
-    return text
-
-def generate_chief_complaint(has_covid=True):
-    """
-    Generate a synthetic chief complaint.
-    
-    Parameters:
-    -----------
-    has_covid : bool
-        Whether the patient has COVID-19
-        
-    Returns:
-    --------
-    str
-        Synthetic chief complaint
-    """
-    if has_covid:
-        templates = [
-            "Fever and cough for 3 days",
-            "Shortness of breath, fatigue",
-            "Loss of taste and smell",
-            "Fever, cough, body aches",
-            "Persistent dry cough, fatigue"
-        ]
-    else:
-        templates = [
-            "Sore throat and congestion",
-            "Seasonal allergies, runny nose",
-            "Productive cough, no fever",
-            "Ear pain and congestion",
-            "Mild headache and fatigue"
-        ]
-    
-    return np.random.choice(templates)
-
-def generate_synthetic_clinical_note(has_covid=True):
-    """
-    Generate a synthetic clinical note.
-    
-    Parameters:
-    -----------
-    has_covid : bool
-        Whether the patient has COVID-19
-        
-    Returns:
-    --------
-    str
-        Synthetic clinical note
-    """
-    # Common note components
-    subjective_templates = [
-        "Patient is a {age}-year-old {gender} who presents with {complaint}.",
-        "{age}-year-old {gender} with {complaint}.",
-        "Patient reports {complaint}."
-    ]
-    
-    covid_complaints = [
-        "fever, dry cough, and fatigue for the past 3 days",
-        "loss of taste and smell, fever, and body aches",
-        "shortness of breath, dry cough, and fever",
-        "fever, fatigue, and headache",
-        "cough, loss of taste, and muscle aches"
-    ]
-    
-    non_covid_complaints = [
-        "nasal congestion, sneezing, and sore throat",
-        "productive cough with green sputum",
-        "ear pain and congestion",
-        "sore throat and seasonal allergies",
-        "headache and sinus pressure"
-    ]
-    
-    age = np.random.randint(18, 85)
-    gender = np.random.choice(["male", "female"])
-    complaint = np.random.choice(covid_complaints if has_covid else non_covid_complaints)
-    
-    subjective = np.random.choice(subjective_templates).format(
-        age=age, gender=gender, complaint=complaint
-    )
-    
-    # Objective findings
-    if has_covid:
-        vitals = "Vitals: Temp 38.5°C, HR 95, BP 128/82, RR 18, O2 Sat 94% on room air."
-        exam = "Physical exam reveals mild respiratory distress. Lungs with scattered rhonchi bilaterally. No rales or wheezes."
-    else:
-        vitals = "Vitals: Temp 37.2°C, HR 72, BP 120/78, RR 16, O2 Sat 98% on room air."
-        exam = "Physical exam reveals clear lungs bilaterally. No respiratory distress. Mild pharyngeal erythema noted."
-    
-    objective = f"{vitals} {exam}"
-    
-    # Assessment and plan
-    if has_covid:
-        assessment = "Assessment: Clinical presentation consistent with COVID-19 infection."
-        plan = "Plan: COVID-19 PCR test ordered. Patient advised to self-isolate pending results. Symptomatic treatment with acetaminophen for fever. Follow up in 2-3 days."
-    else:
-        conditions = ["Upper respiratory infection", "Seasonal allergies", "Acute bronchitis", "Common cold"]
-        condition = np.random.choice(conditions)
-        assessment = f"Assessment: {condition}, likely viral in origin."
-        plan = f"Plan: Symptomatic treatment advised. Rest, fluids, and OTC medications as needed. Return if symptoms worsen or persist beyond 7 days."
-    
-    assessment_plan = f"{assessment} {plan}"
-    
-    # Combine note components
-    note = f"{subjective}\n\n{objective}\n\n{assessment_plan}"
-    
-    return note
+            
+            # Save to disk
+            with open(output_path, 'w') as f:
+                json.dump(content, f, indent=2)
+            
+            logger.info(f"Saved real CDC guidelines to {output_path}")
+            return output_path
+            
+        except Exception as e:
+            logger.error(f"Error fetching real CDC guidelines: {e}")
+            
+            # Fall back to synthetic data if real fetch fails
+            logger.info("Falling back to synthetic CDC guidelines")
+            return fetch_cdc_guidelines(output_dir)
 
 def preprocess_text(text):
     """
@@ -506,19 +451,44 @@ def filter_covid_relevant_text(text):
     
     return ' '.join(covid_sentences)
 
+def main():
+    """Main function to handle command-line execution."""
+    import argparse
+    
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Download data for COVID-19 detection project')
+    parser.add_argument('--real', action='store_true', help='Use real data instead of synthetic')
+    parser.add_argument('--output', default='../data/raw', help='Output directory path')
+    parser.add_argument('--limit', type=int, default=10, help='Limit for number of records to fetch')
+    
+    args = parser.parse_args()
+    
+    # Set the data source flag without needing global (since we're in a function)
+    global USE_SYNTHETIC_DATA  # Declare global before modifying
+    USE_SYNTHETIC_DATA = not args.real
+    
+    return args
+
 if __name__ == "__main__":
-    # Example usage
-    output_dir = "../data/raw"
+    args = main()
+    
+    output_dir = args.output
+    
+    # Print data source
+    if USE_SYNTHETIC_DATA:
+        print("Using SYNTHETIC data for demonstration purposes")
+    else:
+        print("Using REAL data from online sources")
     
     # Download data
-    cord19_path = fetch_cord19_dataset(output_dir, limit=10)
+    cord19_path = fetch_cord19_dataset(output_dir, limit=args.limit)
     cdc_path = fetch_cdc_guidelines(output_dir)
-    forum_posts = scrape_medical_forum("https://example-medical-forum.com", 
-                                      output_dir=output_dir)
-    ehr_path = download_synthetic_ehr_data(output_dir, num_records=20)
     
-    print("Data collection complete. Files saved to:")
+    print("\nData collection complete. Files saved to:")
     print(f"- CORD-19 sample: {cord19_path}")
     print(f"- CDC guidelines: {cdc_path}")
-    print(f"- Forum posts: {output_dir}/forum_posts.json")
-    print(f"- Synthetic EHR data: {ehr_path}")
+    
+    print("\nNext steps:")
+    print("1. Run the Jupyter notebooks to explore the data")
+    print("2. Use the NER pipeline to extract entities from the text")
+    print("3. Train the classification model on the extracted entities")

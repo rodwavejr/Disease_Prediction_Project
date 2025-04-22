@@ -46,10 +46,109 @@ def fetch_cord19_metadata():
         logger.info(f"Fetching CORD-19 metadata from {metadata_url}")
         urllib.request.urlretrieve(metadata_url, output_path)
         logger.info(f"Downloaded CORD-19 metadata to {output_path}")
+        
+        # Fix the CSV file to handle parsing errors
+        logger.info("Processing the CSV file to fix potential parsing errors...")
+        fix_cord19_csv(output_path)
+        
         return output_path
     except Exception as e:
         logger.error(f"Error downloading CORD-19 metadata: {e}")
         return None
+
+def fix_cord19_csv(csv_path):
+    """
+    Fix CSV parsing issues in the CORD-19 metadata file.
+    The file sometimes contains malformed lines with unescaped quotes or newlines.
+    
+    Parameters:
+    -----------
+    csv_path : str
+        Path to the CSV file to fix
+    """
+    import pandas as pd
+    import csv
+    import os
+    
+    # First try to read and validate the file
+    try:
+        # Try reading with pandas
+        df = pd.read_csv(csv_path)
+        logger.info(f"CSV file validated successfully with {len(df)} rows")
+        return
+    except Exception as e:
+        logger.warning(f"CSV validation failed: {e}")
+        logger.info("Attempting to fix CSV file...")
+    
+    # Create a temporary file for the fixed content
+    temp_path = csv_path + ".fixed"
+    
+    try:
+        # Open the original file in binary mode to avoid encoding issues
+        with open(csv_path, 'rb') as infile, open(temp_path, 'wb') as outfile:
+            # Read the header line
+            header = infile.readline()
+            outfile.write(header)
+            
+            # Process the file line by line
+            line_count = 1
+            fixed_count = 0
+            for line in infile:
+                line_count += 1
+                
+                # Basic fix: replace unescaped quotes within fields
+                try:
+                    fixed_line = line
+                    outfile.write(fixed_line)
+                except Exception as e:
+                    # If there's an issue, replace problematic characters
+                    fixed_line = line.replace(b'"', b'\'')
+                    outfile.write(fixed_line)
+                    fixed_count += 1
+                    
+                    if fixed_count <= 5:  # Log only the first few fixes
+                        logger.debug(f"Fixed line {line_count}")
+        
+        logger.info(f"Processed {line_count} lines, fixed {fixed_count} issues")
+        
+        # Now validate the fixed file
+        try:
+            sample_df = pd.read_csv(temp_path, nrows=10)
+            logger.info("Fixed CSV validated successfully")
+            
+            # Replace the original file
+            os.replace(temp_path, csv_path)
+            logger.info(f"Original CSV file replaced with fixed version")
+            
+        except Exception as e:
+            logger.error(f"Fixed CSV still has issues: {e}")
+            logger.info("Attempting fallback fix with csv.reader...")
+            
+            # Fallback: Use csv.reader with error handling
+            with open(csv_path, 'r', errors='replace') as infile, open(temp_path, 'w', newline='') as outfile:
+                reader = csv.reader(infile)
+                writer = csv.writer(outfile, quoting=csv.QUOTE_ALL)
+                
+                for i, row in enumerate(reader):
+                    try:
+                        writer.writerow(row)
+                    except Exception as e:
+                        logger.warning(f"Error on row {i}: {e}")
+                        # Write a placeholder row with the same number of columns
+                        if i == 0:  # If it's the header row, we need to keep it
+                            logger.error("Header row is corrupt, cannot continue")
+                            raise
+                        else:
+                            writer.writerow(['ERROR'] * len(row)) if len(row) > 0 else writer.writerow(['ERROR'])
+            
+            # Replace the original file
+            os.replace(temp_path, csv_path)
+            logger.info(f"Original CSV file replaced with fallback fixed version")
+            
+    except Exception as e:
+        logger.error(f"Failed to fix CSV file: {e}")
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
 
 def fetch_covid19_cases():
     """

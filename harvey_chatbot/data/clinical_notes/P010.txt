@@ -1,0 +1,65 @@
+CLINICAL ENCOUNTER NOTE
+Patient: David Lee
+Date: 2023-04-17
+Provider: Dr. Robert Anderson
+
+CHIEF COMPLAINT:
+Severe shortness of breath, fever, chest pain, and cough for 4 days.
+
+HISTORY OF PRESENT ILLNESS:
+45-year-old male with history of hypertension presenting with progressively worsening shortness of breath, persistent fever, chest pain, and productive cough for 4 days. Initially experienced mild fever and cough that rapidly deteriorated over the past 48 hours. Now reports severe dyspnea at rest and pleuritic chest pain. Cough productive of yellowish sputum. Maximum temperature at home was 102.5°F. Patient has been taking acetaminophen with minimal improvement. Reports extreme fatigue and inability to perform daily activities. Requires assistance to walk to bathroom due to shortness of breath. No known COVID-19 exposure, but attended a large indoor wedding two weeks ago. Received two doses of COVID-19 vaccine but no booster.
+
+PAST MEDICAL HISTORY:
+Hypertension (diagnosed 5 years ago)
+Obesity (BMI 34)
+
+MEDICATIONS:
+Lisinopril 10mg daily
+Acetaminophen PRN for fever
+
+ALLERGIES:
+NKDA
+
+PHYSICAL EXAMINATION:
+Vitals: Temp 101.5°F, HR 118, BP 148/92, RR 28, O2 Sat 84% on room air, 91% on 4L O2 via nasal cannula
+General: Middle-aged male in acute respiratory distress. Using accessory muscles of respiration.
+HEENT: Oropharynx mildly erythematous. No exudates. 
+Neck: Supple. No lymphadenopathy. Jugular venous distention noted.
+Lungs: Bilateral crackles and occasional wheezes. Decreased breath sounds at bases.
+Cardiovascular: Tachycardic. Regular rhythm. No murmurs, rubs, or gallops.
+Abdomen: Soft, non-tender, mildly distended.
+Extremities: Trace bilateral lower extremity edema. No cyanosis.
+Neuro: Alert and oriented x3. Anxious. No focal deficits.
+
+LABORATORY DATA:
+CBC: WBC 13.9 (elevated), Lymphocytes 0.6 (decreased), Hemoglobin 14.2, Platelets 170
+CMP: Mildly elevated creatinine (1.4), otherwise within normal limits
+CRP: 95.3 (markedly elevated)
+D-dimer: 2.1 (markedly elevated)
+Ferritin: 850 (markedly elevated)
+Procalcitonin: 0.9 (elevated)
+Troponin: Negative
+COVID-19 Rapid Antigen: Positive
+COVID-19 PCR: Pending
+ABG: pH 7.36, pCO2 40, pO2 58 on 4L O2
+Chest X-ray: Bilateral diffuse infiltrates with ground-glass appearance
+CT Chest: Extensive bilateral ground-glass opacities with areas of consolidation and crazy-paving pattern, highly suspicious for COVID-19 pneumonia
+
+ASSESSMENT:
+1. Severe COVID-19 pneumonia with acute hypoxemic respiratory failure
+2. Hypertension, poorly controlled
+3. Obesity, significant risk factor for COVID-19 severity
+
+PLAN:
+1. Admit to ICU for close monitoring and management of respiratory failure
+2. Supplemental oxygen with preparation for possible intubation and mechanical ventilation
+3. Start remdesivir, dexamethasone, and baricitinib per COVID-19 protocol
+4. IV fluids with careful monitoring of volume status
+5. Empiric ceftriaxone and azithromycin pending cultures
+6. Therapeutic anticoagulation with enoxaparin given elevated D-dimer
+7. Continue lisinopril with adjustment of antihypertensive regimen as needed
+8. Pulmonology and critical care consults
+9. Consider prone positioning if oxygenation worsens
+10. CPAP/BiPAP if oxygenation does not improve with conventional oxygen therapy
+
+Patient and family understand the critical nature of his condition and the significant risk of mechanical ventilation. They agree with the treatment plan and goal of care is full intervention.

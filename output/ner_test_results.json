@@ -1,4 +1,5 @@
 {
+  "data_source": "synthetic",
   "original_text": "Patient is a 45-year-old male who presents with fever, dry cough, and fatigue for the past 3 days. Patient also reports loss of taste and smell since yesterday.\n\nVitals: Temp 38.5\u00b0C, HR 95, BP 128/82, RR 18, O2 Sat 94% on room air. Physical exam reveals mild respiratory distress. Lungs with scattered rhonchi bilaterally. No rales or wheezes.\n\nAssessment: Clinical presentation consistent with COVID-19 infection. Plan: COVID-19 PCR test ordered. Patient advised to self-isolate pending results. Symptomatic treatment with acetaminophen for fever. Follow up in 2-3 days.",
   "entities": {
     "SYMPTOM": [

@@ -33,11 +33,12 @@ Our pipeline uses a two-stage approach:
 
 1. **Data Collection**
    - Download CORD-19 dataset
-   - Collect clinical trials descriptions
-   - Process medical forum posts
+   - Collect CDC COVID-19 case data
+   - Gather clinical trials descriptions
+   - Process medical literature and reports
 
 2. **Text Preprocessing**
-   - Clean and normalize text
+   - Clean and normalize real clinical text
    - Split into sentences
    - Filter for COVID-19 relevance
 

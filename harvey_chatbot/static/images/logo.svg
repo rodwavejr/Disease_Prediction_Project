@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="25" cy="25" r="25" fill="#000"/>
+  
+  <!-- Heart symbol -->
+  <path d="M25 38C25 38 10 30 10 20C10 15 14 12 18 12C21 12 23 13 25 16C27 13 29 12 32 12C36 12 40 15 40 20C40 30 25 38 25 38Z" fill="#fff"/>
+  
+  <!-- Heartbeat line -->
+  <path d="M13 25H19L21 20L25 30L29 22L31 25H37" stroke="#000" stroke-width="2" fill="none"/>
+</svg>

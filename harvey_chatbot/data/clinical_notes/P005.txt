@@ -1,0 +1,62 @@
+CLINICAL ENCOUNTER NOTE
+Patient: Olivia Smith
+Date: 2023-04-16
+Provider: Dr. Elizabeth Johnson
+
+CHIEF COMPLAINT:
+Severe cough, shortness of breath, fever, and fatigue for 7 days.
+
+HISTORY OF PRESENT ILLNESS:
+35-year-old female with no significant past medical history presenting with severe cough, shortness of breath, fever, and profound fatigue for 7 days. Symptoms began with mild fever and fatigue, progressively worsening over the past week. Cough is productive with small amounts of clear sputum. Reports shortness of breath with minimal exertion and occasional chest tightness. Maximum recorded temperature at home was 103.1°F. Patient has been self-treating with acetaminophen with minimal relief. No improvement in symptoms despite rest and hydration. Reports marked decrease in appetite and activity level. Patient works as a nurse in the emergency department and reports multiple exposures to COVID-19 positive patients in the past two weeks. Fully vaccinated against COVID-19 with last booster 10 months ago.
+
+PAST MEDICAL HISTORY:
+Asthma (mild, exercise-induced)
+No prior COVID-19 infection
+
+MEDICATIONS:
+Albuterol inhaler PRN (rarely used)
+Multivitamin daily
+
+ALLERGIES:
+Latex (rash)
+
+PHYSICAL EXAMINATION:
+Vitals: Temp 101.8°F, HR 110, BP 128/78, RR 24, O2 Sat 90% on room air, 94% on 2L O2 via nasal cannula
+General: Alert but appears fatigued and in mild respiratory distress.
+HEENT: Oropharynx mildly erythematous. No exudates. Nasal mucosa mildly erythematous.
+Neck: Supple. No lymphadenopathy.
+Lungs: Diffuse crackles throughout bilateral lung fields. No wheezing.
+Cardiovascular: Tachycardic. Regular rhythm. No murmurs, gallops, or rubs.
+Abdomen: Soft, non-tender, non-distended.
+Extremities: No edema. No cyanosis.
+Neuro: Alert and oriented x3. No focal deficits.
+
+LABORATORY DATA:
+CBC: WBC 13.2 (elevated), Lymphocytes 0.5 (markedly decreased), Hemoglobin 13.8, Platelets 190
+CMP: Mildly elevated AST/ALT, otherwise within normal limits
+CRP: 86.2 (markedly elevated)
+D-dimer: 1.8 (elevated)
+Ferritin: 780 (markedly elevated)
+LDH: 420 (elevated)
+COVID-19 Rapid Antigen: Positive
+COVID-19 PCR: Pending
+Chest X-ray: Bilateral diffuse patchy opacities consistent with COVID-19 pneumonia
+
+ASSESSMENT:
+1. COVID-19 with pneumonia and hypoxemia
+2. Asthma, not acutely exacerbated
+
+PLAN:
+1. Admit to COVID-19 unit
+2. Supplemental oxygen to maintain SpO2 > 94%
+3. Start remdesivir and dexamethasone per COVID-19 protocol
+4. Continue albuterol inhaler as needed
+5. IV fluids for hydration
+6. Acetaminophen for fever
+7. Close monitoring of respiratory status
+8. Consider high-flow oxygen or mechanical ventilation if respiratory status deteriorates
+9. Thromboprophylaxis with enoxaparin
+10. Pulmonology consult
+11. Notify Employee Health regarding workplace exposure
+
+Patient understands the severity of her condition and agrees with the plan for admission.

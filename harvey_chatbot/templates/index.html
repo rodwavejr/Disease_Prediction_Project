@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harvey | Medical AI Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Harvey Logo" class="logo-image">
+                </div>
+                <div class="header-text">
+                    <h1>Harvey</h1>
+                    <p class="subtitle">Medical AI Assistant</p>
+                </div>
+            </div>
+            <div class="patient-search">
+                <input type="text" id="patientSearch" placeholder="Search patients...">
+            </div>
+            <div class="patient-list" id="patientList">
+                <!-- Patient list will be populated here -->
+                <div class="loading">Loading patients...</div>
+            </div>
+            <div class="sidebar-footer">
+                <p>&copy; 2023 Harvey AI</p>
+                <p>Named after William Harvey</p>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="patient-header" id="patientHeader">
+                <div class="no-patient-selected">
+                    <h2>Welcome to Harvey</h2>
+                    <p>Select a patient to begin analysis</p>
+                </div>
+                <!-- Patient header will be populated here when selected -->
+            </div>
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message system">
+                        <div class="message-content">
+                            <p>Hello, I'm Harvey, your medical AI assistant. I'm here to help you analyze patient data during the COVID-19 outbreak. Select a patient to begin.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <textarea id="userInput" placeholder="Ask me about the patient..." disabled></textarea>
+                    <button id="sendButton" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient Details Modal -->
+    <div class="modal" id="patientDetailsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Patient Details</h3>
+                <button class="close-button" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Patient details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

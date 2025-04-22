@@ -1,0 +1,57 @@
+CLINICAL ENCOUNTER NOTE
+Patient: Isabela Diago
+Date: 2023-04-15
+Provider: Dr. Sarah Williams
+
+CHIEF COMPLAINT:
+Fever, dry cough, and fatigue for 5 days. Recent loss of taste.
+
+HISTORY OF PRESENT ILLNESS:
+42-year-old female presenting with fever, dry cough, and profound fatigue starting 5 days ago. Reports temperatures up to 102.3°F. Developed loss of taste yesterday. Denies shortness of breath at rest, but notes mild dyspnea with exertion. Patient reports possible exposure at workplace where a colleague tested positive for COVID-19 last week. No travel history. Fully vaccinated against COVID-19 with booster 6 months ago.
+
+PAST MEDICAL HISTORY:
+Hypothyroidism (well-controlled)
+Seasonal allergies
+No prior COVID-19 infection
+
+MEDICATIONS:
+Levothyroxine 75mcg daily
+Cetirizine 10mg PRN for allergies
+
+ALLERGIES:
+NKDA
+
+PHYSICAL EXAMINATION:
+Vitals: Temp 100.8°F, HR 92, BP 128/78, RR 18, O2 Sat 96% on room air
+General: Alert, oriented, in no acute distress. Appears fatigued.
+HEENT: Oropharynx mildly erythematous. No exudates. Nasal mucosa mildly erythematous.
+Neck: Supple. No lymphadenopathy.
+Lungs: Few scattered rales at bases bilaterally. No wheezing.
+Cardiovascular: Regular rate and rhythm. No murmurs, gallops, or rubs.
+Abdomen: Soft, non-tender, non-distended.
+Extremities: No edema. No cyanosis.
+Neuro: Cranial nerves intact. No focal deficits.
+
+LABORATORY DATA:
+CBC: WBC 9.2, Lymphocytes 0.8 (decreased), Hemoglobin 13.5, Platelets 210
+CMP: Within normal limits
+CRP: 24.5 (elevated)
+D-dimer: 0.7 (elevated)
+Ferritin: 420 (elevated)
+COVID-19 PCR: Pending
+
+ASSESSMENT:
+1. Suspected COVID-19 infection based on symptoms, possible exposure, and laboratory findings
+2. Hypothyroidism, controlled
+
+PLAN:
+1. Isolation at home until COVID-19 test results return
+2. Symptomatic treatment with acetaminophen for fever
+3. Hydration and rest
+4. Continue home medications
+5. Monitor oxygen saturation with home pulse oximeter
+6. Return to ED if develops shortness of breath at rest, chest pain, or oxygen saturation <94%
+7. Telemedicine follow-up in 2-3 days
+8. Provided patient with educational materials about COVID-19
+
+Patient verbalized understanding of plan and has support at home.
