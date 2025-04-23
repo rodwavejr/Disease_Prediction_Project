@@ -4,10 +4,11 @@ This project implements an end-to-end pipeline for detecting COVID-19 cases from
 
 ## Demo Video
 
-<video width="640" height="480" controls>
-  <source src="assets/videos/demo.mov" type="video/quicktime">
-  Your browser does not support the video tag.
-</video>
+[![COVID-19 Detection Demo](https://img.shields.io/badge/Watch%20Demo-Video%20Preview-blue)](assets/videos/demo.mov)
+
+> **Note:** The demo video is a large file (approximately 22.2 MB) and may not preview directly on GitHub. Click the badge above to download and view the video locally.
+
+*Video Description: This demonstration shows the COVID-19 detection pipeline in action, including text processing, entity extraction, and classification of patient cases based on clinical notes.*
 
 ## Pipeline Overview
 
