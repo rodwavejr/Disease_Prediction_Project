@@ -2,6 +2,13 @@
 
 This project implements an end-to-end pipeline for detecting COVID-19 cases from unstructured medical text. It identifies potential COVID-19 cases based on symptoms, severity indicators, and other relevant entities extracted from clinical notes, combined with structured patient data.
 
+## Demo Video
+
+<video width="640" height="480" controls>
+  <source src="assets/videos/demo.mov" type="video/quicktime">
+  Your browser does not support the video tag.
+</video>
+
 ## Pipeline Overview
 
 Our COVID-19 detection pipeline consists of two major stages:
@@ -23,6 +30,8 @@ Our COVID-19 detection pipeline consists of two major stages:
 
 ```
 Disease_Prediction_Project/
+├── assets/                 # Project assets
+│   └── videos/             # Video assets for documentation
 ├── data/                   # Data directory (created as needed)
 │   ├── raw/                # Raw data from various sources
 │   ├── processed/          # Processed data for model input
