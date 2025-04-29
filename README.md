@@ -172,8 +172,14 @@ To run the full end-to-end pipeline from NER to BioBERT classification:
 # Activate the virtual environment
 source covid_venv/bin/activate
 
-# Run the master notebook
+# Run the full pipeline with NER feature extraction
+python run_pipeline.py --analyze
+
+# Or explore the master notebook
 jupyter notebook notebooks/master/Text_Mining_NER_to_BioBERT_Pipeline.ipynb
+
+# To analyze NER features separately
+jupyter notebook notebooks/master/NER_Feature_Analysis.ipynb
 ```
 
 ### NER Pipeline
@@ -189,6 +195,27 @@ entities = extract_entities_from_text(
 
 # Format for transformer model
 transformer_input = format_entities_for_bert(clinical_note, entities)
+```
+
+### NER Feature Extraction
+
+```python
+# Extract NER features from clinical notes
+from src.scripts.extract_ner_features import extract_features_from_notes
+
+# Create a DataFrame with clinical notes
+notes_df = pd.DataFrame({
+    'record_id': ['patient1', 'patient2'],
+    'note_text': ['Patient presents with fever and cough', 
+                  'No fever, but has shortness of breath']
+})
+
+# Extract NER features
+ner_features = extract_features_from_notes(notes_df)
+
+# The resulting DataFrame contains:
+# - Entity count features (ner_symptom_count, ner_time_count, ner_severity_count)
+# - Binary symptom indicators (has_fever, has_cough, has_shortness_of_breath, etc.)
 ```
 
 ### Classification
@@ -221,9 +248,11 @@ We have successfully implemented:
 
 ## Next Steps
 
-1. Implement the transformer-based classification model
-2. Train custom NER models on real medical text
-3. Evaluate and optimize the full pipeline
+1. Optimize the BioBERT model with additional fine-tuning
+2. Develop more sophisticated NER models for medical terminology
+3. Expand the system to detect other respiratory diseases beyond COVID-19
+4. Improve the model's ability to understand complex symptom descriptions
+5. Develop a clinical dashboard for real-time implementation
 
 ## Requirements
 

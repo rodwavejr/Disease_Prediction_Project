@@ -27,24 +27,27 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Add the src directory to path
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+# Add the project root to path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 # Now import the necessary modules
 try:
     from src.ner_extraction import extract_entities_from_text, format_entities_for_bert
     from src.mimic_integration import get_sample_clinical_notes
     NER_AVAILABLE = True
+    logger.info("NER dependencies successfully imported")
 except ImportError as e:
     logger.warning(f"NER dependencies not available, will not include text features: {e}")
+    logger.debug(traceback.format_exc())
     NER_AVAILABLE = False
 
-# Define directories
-DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+# Define directories properly using project root
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+DATA_DIR = os.path.join(PROJECT_ROOT, 'data')
 EXTERNAL_DIR = os.path.join(DATA_DIR, 'external')
 MIMIC_DIR = os.path.join(EXTERNAL_DIR, 'mimic')
 PROCESSED_DIR = os.path.join(DATA_DIR, 'processed')
-OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'output')
+OUTPUT_DIR = os.path.join(PROJECT_ROOT, 'output')
 
 # Create output directories
 os.makedirs(PROCESSED_DIR, exist_ok=True)
@@ -514,8 +517,50 @@ def create_master_dataset(cdc_features, mimic_features, ner_features=None):
     # List of datasets to combine
     datasets = []
     
+    # Check for NER features file if not provided
+    if ner_features is None:
+        try:
+            ner_features_path = os.path.join(PROCESSED_DIR, 'ner_features.csv')
+            if os.path.exists(ner_features_path):
+                logger.info(f"Loading NER features from {ner_features_path}")
+                ner_features = pd.read_csv(ner_features_path)
+                logger.info(f"Loaded {len(ner_features)} NER feature records")
+            else:
+                # Check if we should extract them
+                from src.scripts.extract_ner_features import main as extract_ner_features
+                logger.info("NER features file not found, attempting to extract features")
+                extract_ner_features()
+                
+                # Try to load the newly created file
+                if os.path.exists(ner_features_path):
+                    ner_features = pd.read_csv(ner_features_path)
+                    logger.info(f"Loaded {len(ner_features)} newly extracted NER feature records")
+        except Exception as e:
+            logger.error(f"Error loading NER features file: {e}")
+            logger.debug(traceback.format_exc())
+    
     if cdc_features is not None and not cdc_features.empty:
-        datasets.append(cdc_features)
+        # Check if we have NER features to add to CDC data
+        if ner_features is not None and not ner_features.empty:
+            try:
+                # Merge on record_id
+                cdc_with_ner = pd.merge(cdc_features, ner_features, on='record_id', how='left')
+                logger.info(f"Added NER features to {len(cdc_features)} CDC records")
+                
+                # Fill missing NER values with zeros
+                ner_cols = [col for col in ner_features.columns if col != 'record_id']
+                for col in ner_cols:
+                    if col in cdc_with_ner.columns:
+                        cdc_with_ner[col] = cdc_with_ner[col].fillna(0)
+                        
+                datasets.append(cdc_with_ner)
+            except Exception as e:
+                logger.error(f"Error merging NER features with CDC data: {e}")
+                logger.debug(traceback.format_exc())
+                datasets.append(cdc_features)
+        else:
+            datasets.append(cdc_features)
+            
         logger.info(f"Adding {len(cdc_features)} CDC records to master dataset")
     
     if mimic_features is not None and not mimic_features.empty:
@@ -525,6 +570,13 @@ def create_master_dataset(cdc_features, mimic_features, ner_features=None):
                 # Merge on record_id
                 mimic_with_ner = pd.merge(mimic_features, ner_features, on='record_id', how='left')
                 logger.info(f"Added NER features to {len(mimic_features)} MIMIC records")
+                
+                # Fill missing NER values with zeros
+                ner_cols = [col for col in ner_features.columns if col != 'record_id']
+                for col in ner_cols:
+                    if col in mimic_with_ner.columns:
+                        mimic_with_ner[col] = mimic_with_ner[col].fillna(0)
+                
                 datasets.append(mimic_with_ner)
             except Exception as e:
                 logger.error(f"Error merging NER features with MIMIC data: {e}")

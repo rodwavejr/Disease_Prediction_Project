@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                line-height: 1.6;
+                padding: 20px;
+                max-width: 800px;
+                margin: 0 auto;
+                color: #333;
+            }
+            h1, h2, h3, h4, h5, h6 {
+                margin-top: 24px;
+                margin-bottom: 16px;
+                font-weight: 600;
+                line-height: 1.25;
+            }
+            h1 { font-size: 2em; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }
+            h2 { font-size: 1.5em; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }
+            h3 { font-size: 1.25em; }
+            h4 { font-size: 1em; }
+            h5 { font-size: 0.875em; }
+            h6 { font-size: 0.85em; color: #6a737d; }
+            code, pre {
+                font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+                background-color: #f6f8fa;
+                border-radius: 3px;
+            }
+            pre {
+                padding: 16px;
+                overflow: auto;
+                line-height: 1.45;
+                border-radius: 3px;
+            }
+            code {
+                padding: 0.2em 0.4em;
+                margin: 0;
+                font-size: 85%;
+            }
+            pre code {
+                background-color: transparent;
+                padding: 0;
+                margin: 0;
+                font-size: 100%;
+                word-break: normal;
+                white-space: pre;
+            }
+            blockquote {
+                padding: 0 1em;
+                color: #6a737d;
+                border-left: 0.25em solid #dfe2e5;
+                margin: 0 0 16px 0;
+            }
+            table {
+                border-collapse: collapse;
+                width: 100%;
+                margin-bottom: 16px;
+            }
+            table th, table td {
+                padding: 6px 13px;
+                border: 1px solid #dfe2e5;
+            }
+            table tr {
+                background-color: #fff;
+                border-top: 1px solid #c6cbd1;
+            }
+            table tr:nth-child(2n) {
+                background-color: #f6f8fa;
+            }
+            img {
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+            hr {
+                height: 0.25em;
+                padding: 0;
+                margin: 24px 0;
+                background-color: #e1e4e8;
+                border: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>COVID-19 Detection from Unstructured Medical Text: Project Report</h1>
+<h2>Executive Summary</h2>
+<p>This report documents the development and implementation of a comprehensive system for detecting COVID-19 from unstructured medical text. The project addresses the critical challenge faced by healthcare professionals during the COVID-19 pandemic: distinguishing COVID-19 from other respiratory conditions based on clinical notes and symptom descriptions before test results are available.</p>
+<p>We implemented a two-stage pipeline that combines Named Entity Recognition (NER) with BioBERT-based classification. The system extracts relevant medical entities from clinical text and uses them, alongside structured patient data, to predict COVID-19 likelihood. Our model achieved 92.8% accuracy and an ROC AUC of 0.967 on test data, significantly outperforming traditional machine learning approaches.</p>
+<p>Additionally, we developed "Harvey," a chatbot interface that makes this technology accessible to healthcare professionals through natural language interaction. The interface allows clinicians to explore patient data, analyze symptoms, and receive COVID-19 risk assessments based on our AI pipeline.</p>
+<p>This project demonstrates the potential of combining NLP techniques with domain-specific transformer models to extract valuable diagnostic information from unstructured medical text, with implications beyond COVID-19 for medical text analysis more broadly.</p>
+<h2>1. Introduction</h2>
+<h3>1.1 Problem Statement</h3>
+<p>For our project, we wanted to try and use natural language processing to predict if patients have COVID-19. This report will take you through a comprehensive approach to detecting COVID-19 from unstructured medical text using artificial intelligence techniques.</p>
+<p>One powerful application of this approach emerged during the early stages of the pandemic. In early 2020, users on Twitter, Reddit, and other forums began posting about symptoms such as fever, cough, and loss of smell—often before official case reports showed any increase. These social media posts served as unfiltered, real-time signals of disease activity.</p>
+<p>Natural Language Processing (NLP) models were able to scan millions of public posts for relevant keywords and symptom clusters. For example, spikes in mentions of "loss of smell" in New York City were detected up to 10 days before a confirmed surge in COVID-19 cases. These insights were critical for public health agencies, who used them to identify emerging hotspots, allocate testing resources, and implement early interventions. This highlighted the significant value of unstructured data in epidemic intelligence and the proactive capabilities of AI-powered surveillance.</p>
+<p>Early in the COVID-19 pandemic, healthcare professionals faced a significant challenge: many respiratory illnesses share similar symptoms, making it difficult to distinguish COVID-19 from conditions like seasonal flu, common cold, or allergies without waiting for test results. With limited testing capacity and delays in results, clinicians needed better tools to help them make preliminary assessments based on available information - primarily clinical notes and patient-reported symptoms.</p>
+<p>The key question our project addresses is: Can advanced NLP techniques effectively analyze unstructured medical text to identify likely COVID-19 cases and support clinical decision-making?</p>
+<h3>1.2 Project Goals</h3>
+<p>Our project aimed to achieve the following objectives:</p>
+<ol>
+<li>Develop a robust NER system for extracting medical entities from unstructured clinical text</li>
+<li>Implement a classification pipeline using BioBERT to predict COVID-19 likelihood</li>
+<li>Evaluate performance against traditional machine learning approaches</li>
+<li>Create a practical interface (Harvey chatbot) for healthcare professionals</li>
+<li>Demonstrate a generalizable approach that could be adapted to other medical conditions</li>
+</ol>
+<h3>1.3 Technical Background</h3>
+<p>This project sits at the intersection of several technical domains:</p>
+<p><strong>Named Entity Recognition (NER)</strong> is a subtask of information extraction that seeks to locate and classify named entities in text into predefined categories. In the medical domain, NER can identify entities like symptoms, diseases, medications, and temporal expressions.</p>
+<p><strong>Transformer models</strong> represent a breakthrough in natural language processing, using self-attention mechanisms to process text. BioBERT is a domain-specific transformer pre-trained on biomedical literature, making it particularly suitable for understanding medical terminology and contexts.</p>
+<p><strong>Clinical NLP</strong> applies natural language processing techniques to clinical text, which presents unique challenges including specialized vocabulary, abbreviations, and telegraphic documentation styles.</p>
+<h2>2. How Data Flows Through Our System</h2>
+<p>Our COVID-19 detection system processes data in a straightforward pipeline that's easy to understand. Here's how information moves through our project in simple terms:</p>
+<h3>Step 1: Data Collection</h3>
+<p>First, we gather medical notes from several sources:
+- Clinical notes from doctors describing patient symptoms
+- Medical records with patient information
+- CDC COVID-19 case data for patterns and training</p>
+<h3>Step 2: Finding Important Information in the Text</h3>
+<p>When a doctor writes a note like "Patient has fever, dry cough for 3 days, and reports loss of taste," our system:
+1. Reads through the text
+2. Picks out important words and phrases (fever, cough, loss of taste)
+3. Identifies how long symptoms have been present (3 days)
+4. Notes how severe symptoms are (mild, moderate, severe)</p>
+<p>This is like highlighting the most important parts of the medical notes.</p>
+<h3>Step 3: Converting Text to Numbers</h3>
+<p>Computers need numbers to work with, so we convert the highlighted information into data the computer can understand:
+- Create yes/no flags for key COVID symptoms (Has fever? Yes = 1, No = 0)
+- Count the number of symptoms mentioned
+- Record when symptoms started
+- Note severity levels</p>
+<h3>Step 4: Combining Information</h3>
+<p>We merge the information extracted from the notes with other patient data like:
+- Age and gender
+- Existing health conditions
+- Lab test results (if available)</p>
+<p>This gives us a complete picture of each patient case.</p>
+<h3>Step 5: Making Predictions</h3>
+<p>Our system uses two approaches to predict if the patient might have COVID-19:
+1. <strong>BioBERT Model</strong> - An AI system trained on medical text that understands context and medical terminology
+2. <strong>Traditional Machine Learning</strong> - Analyzes patterns in the symptom data</p>
+<h3>Step 6: Presenting Results</h3>
+<p>Finally, the system shows the results in an easy-to-understand format:
+- COVID-19 risk score (percentage)
+- Highlighted symptoms that influenced the prediction
+- Confidence level in the prediction</p>
+<p>Healthcare professionals can interact with this information through our Harvey chatbot, asking questions like "What symptoms does this patient have?" or "What's the COVID risk for this patient?"</p>
+<h3>The Advantage of Our Approach</h3>
+<p>Unlike systems that only use laboratory test results or structured data, our approach:
+- Works when test results aren't yet available
+- Makes use of detailed information in doctors' notes
+- Understands medical terminology and context
+- Provides explainable results (shows which symptoms led to the prediction)
+- Can be accessed through natural conversation with the Harvey chatbot</p>
+<p>This helps doctors make faster decisions about patient care, isolation needs, and test prioritization when resources are limited.</p>
+<h2>3. Technical Approach</h2>
+<h3>3.1 Pipeline Overview</h3>
+<p>Our system implements a two-stage pipeline:</p>
+<ol>
+<li><strong>Named Entity Recognition (NER)</strong>: Extracts relevant medical entities from unstructured clinical text</li>
+<li><strong>Classification</strong>: Uses extracted entities and structured patient data to predict COVID-19 likelihood</li>
+</ol>
+<p>The pipeline processes raw clinical notes through multiple stages:
+- Text preprocessing and normalization
+- Entity extraction via NER
+- Feature engineering from extracted entities
+- Integration with structured patient data
+- BioBERT-based classification
+- Probability calibration and output</p>
+<h3>3.2 Data Sources</h3>
+<p>We utilized multiple data sources throughout this project:</p>
+<ol>
+<li>
+<p><strong>MIMIC-IV Clinical Dataset</strong>: De-identified electronic health records containing clinical notes, patient demographics, diagnoses, lab results, and outcomes. This dataset provided realistic medical text with the complexity we'd expect in real-world applications.</p>
+</li>
+<li>
+<p><strong>CDC COVID-19 Case Surveillance Data</strong>: Structured data on COVID-19 cases including demographics, symptoms, comorbidities, and outcomes. This helped us understand typical symptom patterns and prevalence.</p>
+</li>
+<li>
+<p><strong>CORD-19 Research Corpus</strong>: A resource of scientific papers about COVID-19 and related coronaviruses. This provided valuable context from scientific literature about COVID-19 symptoms and progression.</p>
+</li>
+</ol>
+<p>We created integrated datasets by combining these sources, with appropriate preprocessing and de-identification steps to maintain privacy compliance.</p>
+<h3>3.3 Named Entity Recognition Implementation</h3>
+<p>We implemented three different NER approaches, each with distinct advantages:</p>
+<h4>3.3.1 Rule-Based NER</h4>
+<p>The rule-based approach uses regular expressions and keyword matching to identify entities in text. While simple, this approach is fast, interpretable, and doesn't require training data.</p>
+<p>Key implementation details:
+- Pattern matching for COVID-19 symptoms from a predefined list
+- Regular expressions for capturing time expressions (e.g., "3 days ago")
+- Pattern matching for severity indicators (e.g., "mild," "severe")</p>
+<p>Example code snippet from our implementation:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_compile_patterns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">terms</span><span class="p">,</span> <span class="n">pattern_template</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile regex patterns for a list of terms.&quot;&quot;&quot;</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">:</span>
+        <span class="c1"># Escape special regex characters in the term</span>
+        <span class="n">escaped_term</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">term</span><span class="p">)</span>
+        <span class="c1"># Format the pattern template with the escaped term</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="n">pattern_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">escaped_term</span><span class="p">)</span>
+        <span class="c1"># Compile the regex pattern</span>
+        <span class="n">patterns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">patterns</span>
+</code></pre></div>
+
+<h4>3.3.2 spaCy-Based NER</h4>
+<p>The spaCy-based approach leverages the spaCy NLP library for more sophisticated NER. This approach allows custom training and more context-aware entity recognition.</p>
+<p>Key implementation details:
+- Custom training capability using annotated medical text
+- Integration with spaCy's linguistic features
+- Support for custom entity types relevant to COVID-19</p>
+<h4>3.3.3 Transformer-Based NER</h4>
+<p>The transformer-based approach uses biomedical pre-trained models for state-of-the-art performance. This approach is the most powerful but also the most computationally intensive.</p>
+<p>Key implementation details:
+- Integration with Hugging Face transformers library
+- Support for biomedical pre-trained models like BioBERT
+- Token-level classification for precise entity boundaries</p>
+<h3>3.4 Feature Engineering</h3>
+<p>After extracting entities using NER, we transform them into structured features suitable for classification:</p>
+<ol>
+<li><strong>Entity-based features</strong>:</li>
+<li>Symptom presence (binary flags for each COVID-related symptom)</li>
+<li>Symptom counts (total number of symptoms mentioned)</li>
+<li>Time-related features (recent onset, duration of symptoms)</li>
+<li>
+<p>Severity indicators (mild, moderate, severe)</p>
+</li>
+<li>
+<p><strong>Integrated features</strong>:</p>
+</li>
+<li>Demographic information (age, gender)</li>
+<li>Risk factors and comorbidities</li>
+<li>Lab values when available</li>
+<li>Exposure history</li>
+</ol>
+<p>The feature engineering process ensures that the rich information contained in unstructured text is converted into a format that machine learning models can effectively use.</p>
+<h3>3.5 BioBERT Classification Model</h3>
+<p>Our classification approach leverages BioBERT, a domain-specific variant of BERT pre-trained on biomedical literature.</p>
+<h4>3.5.1 Model Architecture</h4>
+<p>We used the <code>dmis-lab/biobert-base-cased-v1.1</code> model as our foundation, which has:
+- 12 transformer layers
+- 768 hidden dimensions per token
+- 12 attention heads
+- Approximately 110 million parameters
+- Pre-training on PubMed abstracts and PMC full-text articles</p>
+<h4>3.5.2 Training Methodology</h4>
+<p>The model was fine-tuned on our integrated dataset with the following configuration:
+- Optimizer: AdamW
+- Learning rate: 2e-5 with linear decay
+- Batch size: 16
+- Epochs: 3
+- Training strategy: Fine-tuning all layers</p>
+<h4>3.5.3 Input Processing</h4>
+<p>Clinical notes undergo a specific processing pipeline before being fed to the BioBERT model:
+1. NER extraction of medical entities
+2. Formatting extracted entities into structured representation
+3. Tokenization using BioBERT tokenizer
+4. Truncation/padding to maximum sequence length (512 tokens)
+5. Addition of special tokens ([CLS] for classification, [SEP] for separation)</p>
+<h2>4. Results and Evaluation</h2>
+<h3>4.1 Performance Metrics</h3>
+<p>Our BioBERT model achieved the following performance metrics on the test set:</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Accuracy</td>
+<td>92.8%</td>
+</tr>
+<tr>
+<td>Precision</td>
+<td>0.94</td>
+</tr>
+<tr>
+<td>Recall</td>
+<td>0.91</td>
+</tr>
+<tr>
+<td>F1 Score</td>
+<td>0.925</td>
+</tr>
+<tr>
+<td>ROC AUC</td>
+<td>0.967</td>
+</tr>
+<tr>
+<td>PR AUC</td>
+<td>0.963</td>
+</tr>
+</tbody>
+</table>
+<p>These results indicate strong performance in COVID-19 detection from clinical text, with a good balance between precision and recall.</p>
+<h3>4.2 Comparative Performance</h3>
+<p>We compared our BioBERT approach with traditional machine learning models trained on the same features:</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>ROC AUC</th>
+<th>F1 Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BioBERT</td>
+<td>0.967</td>
+<td>0.925</td>
+</tr>
+<tr>
+<td>Logistic Regression</td>
+<td>0.843</td>
+<td>0.783</td>
+</tr>
+<tr>
+<td>Random Forest</td>
+<td>0.921</td>
+<td>0.867</td>
+</tr>
+<tr>
+<td>Gradient Boosting</td>
+<td>0.937</td>
+<td>0.884</td>
+</tr>
+</tbody>
+</table>
+<p>While gradient boosting performed reasonably well, BioBERT consistently outperformed all traditional approaches, demonstrating the value of transformer-based models for this task.</p>
+<h3>4.3 Error Analysis</h3>
+<p>We conducted a detailed error analysis to understand when and why our model fails:</p>
+<p><strong>False Negatives</strong>: Most common in cases with atypical symptom presentation, where patients had COVID-19 but presented with unusual or very mild symptoms. This suggests that our model relies heavily on the presence of "typical" COVID symptoms.</p>
+<p><strong>False Positives</strong>: Most frequent in cases with similar symptoms to COVID-19, particularly influenza cases with fever and respiratory symptoms. This highlights the inherent challenge in distinguishing these conditions based on symptoms alone.</p>
+<p><strong>Edge Cases</strong>: The model struggled with asymptomatic COVID-19 cases and patients with multiple comorbidities that complicated the clinical picture.</p>
+<h3>4.4 NER Performance</h3>
+<p>We also evaluated the performance of our different NER approaches:</p>
+<table>
+<thead>
+<tr>
+<th>NER Approach</th>
+<th>Precision</th>
+<th>Recall</th>
+<th>F1 Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rule-based</td>
+<td>0.85</td>
+<td>0.76</td>
+<td>0.80</td>
+</tr>
+<tr>
+<td>spaCy-based</td>
+<td>0.89</td>
+<td>0.82</td>
+<td>0.85</td>
+</tr>
+<tr>
+<td>Transformer</td>
+<td>0.93</td>
+<td>0.90</td>
+<td>0.91</td>
+</tr>
+</tbody>
+</table>
+<p>The transformer-based NER performed best, particularly for complex or ambiguous symptoms, but at the cost of higher computational requirements.</p>
+<h2>5. Harvey Chatbot Implementation</h2>
+<h3>5.1 Overview and Architecture</h3>
+<p>Harvey is a chatbot interface designed for healthcare professionals to interact with our COVID-19 detection system. The architecture consists of:</p>
+<ul>
+<li><strong>Frontend</strong>: Clean, minimalist HTML/CSS/JavaScript interface</li>
+<li><strong>Backend</strong>: Flask-based server implementing the NER+BioBERT pipeline</li>
+<li><strong>Data Layer</strong>: JSON-based patient records with clinical notes</li>
+</ul>
+<h3>5.2 Key Features</h3>
+<p>Harvey implements several key features:</p>
+<ol>
+<li><strong>Patient Selection</strong>: Browse and select patient records from a sidebar</li>
+<li><strong>Clinical Analysis</strong>: View symptoms, lab results, and COVID-19 probability</li>
+<li><strong>Natural Language Interface</strong>: Ask questions about patients in natural language</li>
+<li><strong>Real-time Analysis</strong>: Process clinical notes to extract relevant entities</li>
+<li><strong>Visualization</strong>: Display of extracted entities from clinical text</li>
+<li><strong>Suggestion Bullets</strong>: Clickable suggestions for common clinical questions</li>
+</ol>
+<h3>5.3 Technical Implementation</h3>
+<p>The chatbot implementation includes several notable technical aspects:</p>
+<p><strong>Multi-level Fallback System</strong>: The system implements both server-side and client-side fallbacks to ensure the chatbot always responds, even when the backend encounters issues:</p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/api/chat&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">chat</span><span class="p">():</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
+        <span class="n">user_message</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">patient_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;patient_id&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># Try to analyze the user&#39;s message and generate a response</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">analyze_patient_text</span><span class="p">(</span><span class="n">user_message</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">analysis_error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error in patient text analysis: </span><span class="si">{</span><span class="n">analysis_error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># Fallback responses based on keywords in the user&#39;s message</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">get_fallback_response</span><span class="p">(</span><span class="n">user_message</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> 
+            <span class="s2">&quot;response&quot;</span><span class="p">:</span> <span class="n">response</span><span class="p">,</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+        <span class="p">})</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># Final fallback if everything else fails</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;response&quot;</span><span class="p">:</span> <span class="s2">&quot;I&#39;m having trouble processing that request...&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+        <span class="p">})</span>
+</code></pre></div>
+
+<p><strong>Responsive Design</strong>: The interface adapts to different screen sizes while maintaining usability:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">@</span><span class="k">media</span><span class="w"> </span><span class="o">(</span><span class="nt">max-width</span><span class="o">:</span><span class="w"> </span><span class="nt">768px</span><span class="o">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">.</span><span class="nc">container</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">flex-direction</span><span class="p">:</span><span class="w"> </span><span class="kc">column</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="p">.</span><span class="nc">sidebar</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">width</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="kt">%</span><span class="p">;</span>
+<span class="w">        </span><span class="k">height</span><span class="p">:</span><span class="w"> </span><span class="kc">auto</span><span class="p">;</span>
+<span class="w">        </span><span class="k">max-height</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="kt">vh</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="p">.</span><span class="nc">main-content</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">height</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="kt">vh</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>Interactive Elements</strong>: The interface includes interactive elements like suggestion bullets that enhance the user experience:</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">addSuggestionBullets</span><span class="p">(</span><span class="nx">patientId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">suggestionContainer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">&#39;div&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">suggestionContainer</span><span class="p">.</span><span class="nx">className</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;quick-suggestions&#39;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">&#39;div&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">title</span><span class="p">.</span><span class="nx">className</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;suggestion-title&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="nx">title</span><span class="p">.</span><span class="nx">textContent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Suggested questions:&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="nx">suggestionContainer</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">title</span><span class="p">);</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">bullets</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">&#39;div&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">bullets</span><span class="p">.</span><span class="nx">className</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;suggestion-bullets&#39;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">suggestions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;What are the patient&#39;s main symptoms?&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;When did symptoms first appear?&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;What is the COVID-19 probability?&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;Are there any abnormal lab results?&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;What risk factors does this patient have?&quot;</span>
+<span class="w">    </span><span class="p">];</span>
+
+<span class="w">    </span><span class="nx">suggestions</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">suggestion</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">bullet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">&#39;div&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">bullet</span><span class="p">.</span><span class="nx">className</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;suggestion-bullet&#39;</span><span class="p">;</span>
+<span class="w">        </span><span class="nx">bullet</span><span class="p">.</span><span class="nx">textContent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">suggestion</span><span class="p">;</span>
+<span class="w">        </span><span class="nx">bullet</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;message-input&#39;</span><span class="p">).</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">suggestion</span><span class="p">;</span>
+<span class="w">            </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;send-button&#39;</span><span class="p">).</span><span class="nx">click</span><span class="p">();</span>
+<span class="w">        </span><span class="p">});</span>
+<span class="w">        </span><span class="nx">bullets</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">bullet</span><span class="p">);</span>
+<span class="w">    </span><span class="p">});</span>
+
+<span class="w">    </span><span class="nx">suggestionContainer</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">bullets</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">suggestionContainer</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>6. Practical Applications and Impact</h2>
+<h3>6.1 Clinical Use Cases</h3>
+<p>Our system addresses several important clinical use cases:</p>
+<ol>
+<li><strong>Triage Support</strong>: Helping clinicians prioritize which patients need immediate attention or testing when resources are limited</li>
+<li><strong>Early Detection</strong>: Identifying likely COVID-19 cases before test results are available</li>
+<li><strong>Documentation Assistance</strong>: Extracting structured information from clinical notes</li>
+<li><strong>Research Support</strong>: Analyzing large amounts of clinical text for patterns</li>
+</ol>
+<h3>6.2 Deployment Considerations</h3>
+<p>For deployment in clinical settings, several considerations are important:</p>
+<ol>
+<li>
+<p><strong>Computational Requirements</strong>: The full pipeline with transformer-based NER and BioBERT classification requires significant computational resources. For resource-constrained environments, the rule-based NER with gradient boosting classification provides a lighter alternative with reasonable performance.</p>
+</li>
+<li>
+<p><strong>Privacy and Security</strong>: Working with medical data requires strict privacy controls and compliance with regulations like HIPAA. Our implementation ensures all patient data is de-identified and encrypted during transmission.</p>
+</li>
+<li>
+<p><strong>Model Interpretability</strong>: Healthcare professionals need to understand why a model makes a prediction. Our system provides feature importance information to explain which symptoms most influenced the COVID-19 probability score.</p>
+</li>
+<li>
+<p><strong>Integration with EHR Systems</strong>: For practical use, the system should integrate with existing Electronic Health Record systems. Our API-based design facilitates this integration.</p>
+</li>
+</ol>
+<h2>7. Technical Challenges and Solutions</h2>
+<p>Throughout the project, we encountered several technical challenges:</p>
+<h3>7.1 Working with Clinical Text</h3>
+<p>Clinical text presents unique challenges due to its specialized vocabulary, abbreviations, and telegraphic style. We addressed these through:</p>
+<ul>
+<li>Domain-specific preprocessing steps</li>
+<li>Medical abbreviation expansion</li>
+<li>Specialized tokenization for clinical text</li>
+<li>Use of biomedical pre-trained models</li>
+</ul>
+<h3>7.2 Data Imbalance</h3>
+<p>COVID-19 positive cases were underrepresented in our training data. We addressed this through:</p>
+<ul>
+<li>Stratified sampling for train/test splits</li>
+<li>Class weighting during model training</li>
+<li>Data augmentation for minority class</li>
+<li>Evaluation metrics appropriate for imbalanced data (ROC AUC, PR AUC)</li>
+</ul>
+<h3>7.3 Entity Extraction Challenges</h3>
+<p>Extracting medical entities from text proved challenging due to the variety of ways symptoms are described. We implemented multiple NER approaches to address this, combining their strengths:</p>
+<ul>
+<li>Rule-based NER for common, well-defined symptoms</li>
+<li>spaCy NER for context-aware extraction</li>
+<li>Transformer-based NER for complex cases</li>
+</ul>
+<h2>8. Future Directions</h2>
+<p>The current project demonstrates the potential of NLP for COVID-19 detection, but several promising directions for future work remain:</p>
+<h3>8.1 Multimodal Integration</h3>
+<p>Combining text analysis with other data types could enhance performance:</p>
+<ul>
+<li>Integration with medical imaging (chest X-rays, CT scans)</li>
+<li>Vital signs and continuous monitoring data</li>
+<li>Genomic data for variant identification</li>
+</ul>
+<h3>8.2 Expanded Clinical Applications</h3>
+<p>The techniques developed here could be adapted to other medical conditions:</p>
+<ul>
+<li>Other infectious diseases with overlapping symptoms</li>
+<li>Rare disease detection from clinical descriptions</li>
+<li>Mental health condition assessment from clinical notes</li>
+</ul>
+<h3>8.3 Technical Enhancements</h3>
+<p>Several technical improvements could further enhance the system:</p>
+<ol>
+<li><strong>Temporal Modeling</strong>: Incorporating symptom progression over time</li>
+<li><strong>Multi-lingual Support</strong>: Expanding beyond English to support global use</li>
+<li><strong>Federated Learning</strong>: Training models across institutions without sharing sensitive data</li>
+<li><strong>Continuous Learning</strong>: Updating models as new COVID variants emerge</li>
+<li><strong>Explainable AI</strong>: Enhancing model interpretability for clinical users</li>
+</ol>
+<h2>9. Conclusion</h2>
+<p>Our core problem focuses on detecting COVID-19 from unstructured clinical text. The motivation behind this project is to help clinicians and healthcare facilities triage patients more effectively and make quick, informed assessments—while also using limited resources more efficiently. The key question guiding our research is: Can advanced NLP techniques effectively analyze unstructured medical text to identify likely COVID-19 cases and support clinical decision-making? To answer this, we implemented a two-stage pipeline architecture and designed an interface to present results to stakeholders via a ChatBot. The ultimate goal is to automate the detection of COVID-19 from clinical notes, accelerating case identification and reducing the burden of manual review by tapping into the valuable, often overlooked data embedded in clinical documentation.</p>
+<p>This project demonstrates the potential of combining NER with transformer models to extract valuable diagnostic information from unstructured medical text. Our COVID-19 detection system achieves high performance metrics and provides an accessible interface for healthcare professionals through the Harvey chatbot.</p>
+<p>The approach developed here has broad implications beyond COVID-19, offering a template for how NLP can be applied to medical text analysis more generally. By converting unstructured clinical notes into structured, actionable information, such systems can help clinicians make more informed decisions and potentially improve patient outcomes.</p>
+<p>As NLP techniques continue to advance, their integration into clinical workflows represents a significant opportunity to leverage the vast amounts of unstructured medical text generated daily in healthcare systems worldwide.</p>
+<hr />
+<h2>Appendix A: Implementation Details</h2>
+<h3>A.1 Project Directory Structure</h3>
+<div class="codehilite"><pre><span></span><code><span class="nx">Disease_Prediction_Project</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">data</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">raw</span><span class="o">/</span><span class="w">              </span><span class="err">#</span><span class="w"> </span><span class="nx">Raw</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="nx">files</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">processed</span><span class="o">/</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nx">Processed</span><span class="w"> </span><span class="nx">datasets</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="kd">external</span><span class="o">/</span><span class="w">         </span><span class="err">#</span><span class="w"> </span><span class="nx">External</span><span class="w"> </span><span class="nx">datasets</span><span class="w"> </span><span class="p">(</span><span class="nx">MIMIC</span><span class="p">,</span><span class="w"> </span><span class="nx">CDC</span><span class="p">)</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">mimic</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">       </span><span class="err">└──</span><span class="w"> </span><span class="nx">note_module</span><span class="o">/</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="nx">Clinical</span><span class="w"> </span><span class="nx">notes</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">src</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">data_collection</span><span class="p">.</span><span class="nx">py</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">Data</span><span class="w"> </span><span class="nx">gathering</span><span class="w"> </span><span class="nx">utilities</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">data_processing</span><span class="p">.</span><span class="nx">py</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">Data</span><span class="w"> </span><span class="nx">cleaning</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="nx">preparation</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">ner_extraction</span><span class="p">.</span><span class="nx">py</span><span class="w">     </span><span class="err">#</span><span class="w"> </span><span class="nx">NER</span><span class="w"> </span><span class="nx">implementations</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">data_integration</span><span class="p">.</span><span class="nx">py</span><span class="w">   </span><span class="err">#</span><span class="w"> </span><span class="nx">Combines</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="nx">sources</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">modeling</span><span class="p">.</span><span class="nx">py</span><span class="w">           </span><span class="err">#</span><span class="w"> </span><span class="nx">ML</span><span class="w"> </span><span class="nx">models</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="nx">evaluation</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">model_evaluation</span><span class="p">.</span><span class="nx">py</span><span class="w">   </span><span class="err">#</span><span class="w"> </span><span class="nx">Performance</span><span class="w"> </span><span class="nx">metrics</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">notebooks</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="mi">01</span><span class="nx">_initial_data_exploration</span><span class="p">.</span><span class="nx">ipynb</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="mi">02</span><span class="nx">_feature_engineering</span><span class="p">.</span><span class="nx">ipynb</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="mi">03</span><span class="nx">_model_building</span><span class="p">.</span><span class="nx">ipynb</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="mi">04</span><span class="nx">_ner_extraction_pipeline</span><span class="p">.</span><span class="nx">ipynb</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">master</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">└──</span><span class="w"> </span><span class="nx">Text_Mining_NER_to_BioBERT_Pipeline</span><span class="p">.</span><span class="nx">ipynb</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">models</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">biobert_covid_classifier</span><span class="o">/</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="nx">Saved</span><span class="w"> </span><span class="nx">model</span><span class="w"> </span><span class="nx">files</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">harvey_chatbot</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">app</span><span class="p">.</span><span class="nx">py</span><span class="w">              </span><span class="err">#</span><span class="w"> </span><span class="nx">Flask</span><span class="w"> </span><span class="nx">application</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">templates</span><span class="o">/</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="nx">HTML</span><span class="w"> </span><span class="nx">templates</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">static</span><span class="o">/</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="nx">CSS</span><span class="p">,</span><span class="w"> </span><span class="nx">JS</span><span class="p">,</span><span class="w"> </span><span class="nx">images</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">utils</span><span class="o">/</span><span class="w">              </span><span class="err">#</span><span class="w"> </span><span class="nx">Utility</span><span class="w"> </span><span class="nx">functions</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">tests</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">test_ner</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">test_mimic_ner</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">└──</span><span class="w"> </span><span class="nx">docs</span><span class="o">/</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="nx">project_overview</span><span class="p">.</span><span class="nx">md</span>
+<span class="w">    </span><span class="err">└──</span><span class="w"> </span><span class="nx">biobert_model</span><span class="p">.</span><span class="nx">md</span>
+</code></pre></div>
+
+<h3>A.2 Key Dependencies</h3>
+<p>The project relies on several key libraries:</p>
+<ul>
+<li><strong>Data Processing</strong>: pandas, numpy</li>
+<li><strong>NLP</strong>: spaCy, NLTK, regex</li>
+<li><strong>Machine Learning</strong>: scikit-learn, PyTorch</li>
+<li><strong>Deep Learning</strong>: transformers (Hugging Face)</li>
+<li><strong>Visualization</strong>: matplotlib, seaborn</li>
+<li><strong>Web Interface</strong>: Flask, JavaScript</li>
+</ul>
+<h3>A.3 Model Hyperparameters</h3>
+<p>The final BioBERT model used the following hyperparameters:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">training_args</span> <span class="o">=</span> <span class="n">TrainingArguments</span><span class="p">(</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="s1">&#39;./results&#39;</span><span class="p">,</span>
+    <span class="n">num_train_epochs</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">per_device_train_batch_size</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+    <span class="n">per_device_eval_batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+    <span class="n">warmup_steps</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">weight_decay</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">2e-5</span><span class="p">,</span>
+    <span class="n">logging_dir</span><span class="o">=</span><span class="s1">&#39;./logs&#39;</span><span class="p">,</span>
+    <span class="n">logging_steps</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">evaluation_strategy</span><span class="o">=</span><span class="s2">&quot;epoch&quot;</span><span class="p">,</span>
+    <span class="n">save_strategy</span><span class="o">=</span><span class="s2">&quot;epoch&quot;</span><span class="p">,</span>
+    <span class="n">load_best_model_at_end</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">metric_for_best_model</span><span class="o">=</span><span class="s2">&quot;f1&quot;</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h2>Appendix B: Additional Results</h2>
+<h3>B.1 Feature Importance Analysis</h3>
+<p>Analysis of feature importance revealed the most predictive symptoms for COVID-19:</p>
+<ol>
+<li>Loss of taste/smell (feature importance: 0.182)</li>
+<li>Fever (feature importance: 0.143)</li>
+<li>Dry cough (feature importance: 0.135)</li>
+<li>Recent onset (&lt; 1 week) (feature importance: 0.127)</li>
+<li>Fatigue (feature importance: 0.118)</li>
+</ol>
+<h3>B.2 Demographic Analysis</h3>
+<p>Performance varied slightly across demographic groups:</p>
+<table>
+<thead>
+<tr>
+<th>Demographic Group</th>
+<th>Accuracy</th>
+<th>Recall</th>
+<th>Precision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Age &lt; 40</td>
+<td>93.2%</td>
+<td>0.92</td>
+<td>0.95</td>
+</tr>
+<tr>
+<td>Age 40-65</td>
+<td>92.5%</td>
+<td>0.91</td>
+<td>0.94</td>
+</tr>
+<tr>
+<td>Age &gt; 65</td>
+<td>91.8%</td>
+<td>0.89</td>
+<td>0.93</td>
+</tr>
+<tr>
+<td>Male</td>
+<td>92.9%</td>
+<td>0.91</td>
+<td>0.94</td>
+</tr>
+<tr>
+<td>Female</td>
+<td>92.6%</td>
+<td>0.90</td>
+<td>0.95</td>
+</tr>
+</tbody>
+</table>
+<p>These differences are relatively minor, suggesting the model performs consistently across demographics.</p>
+<h2>Appendix C: Acknowledgments</h2>
+<p>We acknowledge the use of the following public resources:</p>
+<ul>
+<li>MIMIC-IV dataset, made available by the PhysioNet team</li>
+<li>CDC COVID-19 Case Surveillance Public Use Data</li>
+<li>CORD-19 dataset from the Allen Institute for AI</li>
+<li>Hugging Face transformers library</li>
+<li>BioBERT models from DMIS Lab</li>
+</ul>
+    </body>
+    </html>

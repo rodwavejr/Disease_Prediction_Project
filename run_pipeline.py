@@ -85,6 +85,16 @@ def run_ner_extraction(args):
         test_integration_main()
         logger.info("NER integration test complete")
         
+        # Extract NER features for classification
+        logger.info("Extracting NER features for classification")
+        try:
+            from src.scripts.extract_ner_features import main as extract_ner_features_main
+            extract_ner_features_main()
+            logger.info("NER feature extraction complete")
+        except Exception as e:
+            logger.error(f"Error extracting NER features: {e}")
+            logger.info("Will continue without NER features")
+        
         return True
     except Exception as e:
         logger.error(f"Error running NER extraction: {e}")

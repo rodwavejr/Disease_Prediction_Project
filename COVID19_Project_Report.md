@@ -14,6 +14,12 @@ This project demonstrates the potential of combining NLP techniques with domain-
 
 ### 1.1 Problem Statement
 
+For our project, we wanted to try and use natural language processing to predict if patients have COVID-19. This report will take you through a comprehensive approach to detecting COVID-19 from unstructured medical text using artificial intelligence techniques.
+
+One powerful application of this approach emerged during the early stages of the pandemic. In early 2020, users on Twitter, Reddit, and other forums began posting about symptoms such as fever, cough, and loss of smell—often before official case reports showed any increase. These social media posts served as unfiltered, real-time signals of disease activity.
+
+Natural Language Processing (NLP) models were able to scan millions of public posts for relevant keywords and symptom clusters. For example, spikes in mentions of "loss of smell" in New York City were detected up to 10 days before a confirmed surge in COVID-19 cases. These insights were critical for public health agencies, who used them to identify emerging hotspots, allocate testing resources, and implement early interventions. This highlighted the significant value of unstructured data in epidemic intelligence and the proactive capabilities of AI-powered surveillance.
+
 Early in the COVID-19 pandemic, healthcare professionals faced a significant challenge: many respiratory illnesses share similar symptoms, making it difficult to distinguish COVID-19 from conditions like seasonal flu, common cold, or allergies without waiting for test results. With limited testing capacity and delays in results, clinicians needed better tools to help them make preliminary assessments based on available information - primarily clinical notes and patient-reported symptoms.
 
 The key question our project addresses is: Can advanced NLP techniques effectively analyze unstructured medical text to identify likely COVID-19 cases and support clinical decision-making?
@@ -38,9 +44,66 @@ This project sits at the intersection of several technical domains:
 
 **Clinical NLP** applies natural language processing techniques to clinical text, which presents unique challenges including specialized vocabulary, abbreviations, and telegraphic documentation styles.
 
-## 2. Technical Approach
+## 2. How Data Flows Through Our System
 
-### 2.1 Pipeline Overview
+Our COVID-19 detection system processes data in a straightforward pipeline that's easy to understand. Here's how information moves through our project in simple terms:
+
+### Step 1: Data Collection
+First, we gather medical notes from several sources:
+- Clinical notes from doctors describing patient symptoms
+- Medical records with patient information
+- CDC COVID-19 case data for patterns and training
+
+### Step 2: Finding Important Information in the Text
+When a doctor writes a note like "Patient has fever, dry cough for 3 days, and reports loss of taste," our system:
+1. Reads through the text
+2. Picks out important words and phrases (fever, cough, loss of taste)
+3. Identifies how long symptoms have been present (3 days)
+4. Notes how severe symptoms are (mild, moderate, severe)
+
+This is like highlighting the most important parts of the medical notes.
+
+### Step 3: Converting Text to Numbers
+Computers need numbers to work with, so we convert the highlighted information into data the computer can understand:
+- Create yes/no flags for key COVID symptoms (Has fever? Yes = 1, No = 0)
+- Count the number of symptoms mentioned
+- Record when symptoms started
+- Note severity levels
+
+### Step 4: Combining Information
+We merge the information extracted from the notes with other patient data like:
+- Age and gender
+- Existing health conditions
+- Lab test results (if available)
+
+This gives us a complete picture of each patient case.
+
+### Step 5: Making Predictions
+Our system uses two approaches to predict if the patient might have COVID-19:
+1. **BioBERT Model** - An AI system trained on medical text that understands context and medical terminology
+2. **Traditional Machine Learning** - Analyzes patterns in the symptom data
+
+### Step 6: Presenting Results
+Finally, the system shows the results in an easy-to-understand format:
+- COVID-19 risk score (percentage)
+- Highlighted symptoms that influenced the prediction
+- Confidence level in the prediction
+
+Healthcare professionals can interact with this information through our Harvey chatbot, asking questions like "What symptoms does this patient have?" or "What's the COVID risk for this patient?"
+
+### The Advantage of Our Approach
+Unlike systems that only use laboratory test results or structured data, our approach:
+- Works when test results aren't yet available
+- Makes use of detailed information in doctors' notes
+- Understands medical terminology and context
+- Provides explainable results (shows which symptoms led to the prediction)
+- Can be accessed through natural conversation with the Harvey chatbot
+
+This helps doctors make faster decisions about patient care, isolation needs, and test prioritization when resources are limited.
+
+## 3. Technical Approach
+
+### 3.1 Pipeline Overview
 
 Our system implements a two-stage pipeline:
 
@@ -55,7 +118,7 @@ The pipeline processes raw clinical notes through multiple stages:
 - BioBERT-based classification
 - Probability calibration and output
 
-### 2.2 Data Sources
+### 3.2 Data Sources
 
 We utilized multiple data sources throughout this project:
 
@@ -67,11 +130,11 @@ We utilized multiple data sources throughout this project:
 
 We created integrated datasets by combining these sources, with appropriate preprocessing and de-identification steps to maintain privacy compliance.
 
-### 2.3 Named Entity Recognition Implementation
+### 3.3 Named Entity Recognition Implementation
 
 We implemented three different NER approaches, each with distinct advantages:
 
-#### 2.3.1 Rule-Based NER
+#### 3.3.1 Rule-Based NER
 
 The rule-based approach uses regular expressions and keyword matching to identify entities in text. While simple, this approach is fast, interpretable, and doesn't require training data.
 
@@ -95,7 +158,7 @@ def _compile_patterns(self, terms, pattern_template):
     return patterns
 ```
 
-#### 2.3.2 spaCy-Based NER
+#### 3.3.2 spaCy-Based NER
 
 The spaCy-based approach leverages the spaCy NLP library for more sophisticated NER. This approach allows custom training and more context-aware entity recognition.
 
@@ -104,7 +167,7 @@ Key implementation details:
 - Integration with spaCy's linguistic features
 - Support for custom entity types relevant to COVID-19
 
-#### 2.3.3 Transformer-Based NER
+#### 3.3.3 Transformer-Based NER
 
 The transformer-based approach uses biomedical pre-trained models for state-of-the-art performance. This approach is the most powerful but also the most computationally intensive.
 
@@ -113,7 +176,7 @@ Key implementation details:
 - Support for biomedical pre-trained models like BioBERT
 - Token-level classification for precise entity boundaries
 
-### 2.4 Feature Engineering
+### 3.4 Feature Engineering
 
 After extracting entities using NER, we transform them into structured features suitable for classification:
 
@@ -131,11 +194,11 @@ After extracting entities using NER, we transform them into structured features 
 
 The feature engineering process ensures that the rich information contained in unstructured text is converted into a format that machine learning models can effectively use.
 
-### 2.5 BioBERT Classification Model
+### 3.5 BioBERT Classification Model
 
 Our classification approach leverages BioBERT, a domain-specific variant of BERT pre-trained on biomedical literature.
 
-#### 2.5.1 Model Architecture
+#### 3.5.1 Model Architecture
 
 We used the `dmis-lab/biobert-base-cased-v1.1` model as our foundation, which has:
 - 12 transformer layers
@@ -144,7 +207,7 @@ We used the `dmis-lab/biobert-base-cased-v1.1` model as our foundation, which ha
 - Approximately 110 million parameters
 - Pre-training on PubMed abstracts and PMC full-text articles
 
-#### 2.5.2 Training Methodology
+#### 3.5.2 Training Methodology
 
 The model was fine-tuned on our integrated dataset with the following configuration:
 - Optimizer: AdamW
@@ -153,7 +216,7 @@ The model was fine-tuned on our integrated dataset with the following configurat
 - Epochs: 3
 - Training strategy: Fine-tuning all layers
 
-#### 2.5.3 Input Processing
+#### 3.5.3 Input Processing
 
 Clinical notes undergo a specific processing pipeline before being fed to the BioBERT model:
 1. NER extraction of medical entities
@@ -162,9 +225,9 @@ Clinical notes undergo a specific processing pipeline before being fed to the Bi
 4. Truncation/padding to maximum sequence length (512 tokens)
 5. Addition of special tokens ([CLS] for classification, [SEP] for separation)
 
-## 3. Results and Evaluation
+## 4. Results and Evaluation
 
-### 3.1 Performance Metrics
+### 4.1 Performance Metrics
 
 Our BioBERT model achieved the following performance metrics on the test set:
 
@@ -179,7 +242,7 @@ Our BioBERT model achieved the following performance metrics on the test set:
 
 These results indicate strong performance in COVID-19 detection from clinical text, with a good balance between precision and recall.
 
-### 3.2 Comparative Performance
+### 4.2 Comparative Performance
 
 We compared our BioBERT approach with traditional machine learning models trained on the same features:
 
@@ -192,7 +255,7 @@ We compared our BioBERT approach with traditional machine learning models traine
 
 While gradient boosting performed reasonably well, BioBERT consistently outperformed all traditional approaches, demonstrating the value of transformer-based models for this task.
 
-### 3.3 Error Analysis
+### 4.3 Error Analysis
 
 We conducted a detailed error analysis to understand when and why our model fails:
 
@@ -202,7 +265,7 @@ We conducted a detailed error analysis to understand when and why our model fail
 
 **Edge Cases**: The model struggled with asymptomatic COVID-19 cases and patients with multiple comorbidities that complicated the clinical picture.
 
-### 3.4 NER Performance
+### 4.4 NER Performance
 
 We also evaluated the performance of our different NER approaches:
 
@@ -214,9 +277,9 @@ We also evaluated the performance of our different NER approaches:
 
 The transformer-based NER performed best, particularly for complex or ambiguous symptoms, but at the cost of higher computational requirements.
 
-## 4. Harvey Chatbot Implementation
+## 5. Harvey Chatbot Implementation
 
-### 4.1 Overview and Architecture
+### 5.1 Overview and Architecture
 
 Harvey is a chatbot interface designed for healthcare professionals to interact with our COVID-19 detection system. The architecture consists of:
 
@@ -224,7 +287,7 @@ Harvey is a chatbot interface designed for healthcare professionals to interact 
 - **Backend**: Flask-based server implementing the NER+BioBERT pipeline
 - **Data Layer**: JSON-based patient records with clinical notes
 
-### 4.2 Key Features
+### 5.2 Key Features
 
 Harvey implements several key features:
 
@@ -235,7 +298,7 @@ Harvey implements several key features:
 5. **Visualization**: Display of extracted entities from clinical text
 6. **Suggestion Bullets**: Clickable suggestions for common clinical questions
 
-### 4.3 Technical Implementation
+### 5.3 Technical Implementation
 
 The chatbot implementation includes several notable technical aspects:
 
@@ -330,9 +393,9 @@ function addSuggestionBullets(patientId) {
 }
 ```
 
-## 5. Practical Applications and Impact
+## 6. Practical Applications and Impact
 
-### 5.1 Clinical Use Cases
+### 6.1 Clinical Use Cases
 
 Our system addresses several important clinical use cases:
 
@@ -341,7 +404,7 @@ Our system addresses several important clinical use cases:
 3. **Documentation Assistance**: Extracting structured information from clinical notes
 4. **Research Support**: Analyzing large amounts of clinical text for patterns
 
-### 5.2 Deployment Considerations
+### 6.2 Deployment Considerations
 
 For deployment in clinical settings, several considerations are important:
 
@@ -353,11 +416,11 @@ For deployment in clinical settings, several considerations are important:
 
 4. **Integration with EHR Systems**: For practical use, the system should integrate with existing Electronic Health Record systems. Our API-based design facilitates this integration.
 
-## 6. Technical Challenges and Solutions
+## 7. Technical Challenges and Solutions
 
 Throughout the project, we encountered several technical challenges:
 
-### 6.1 Working with Clinical Text
+### 7.1 Working with Clinical Text
 
 Clinical text presents unique challenges due to its specialized vocabulary, abbreviations, and telegraphic style. We addressed these through:
 
@@ -366,7 +429,7 @@ Clinical text presents unique challenges due to its specialized vocabulary, abbr
 - Specialized tokenization for clinical text
 - Use of biomedical pre-trained models
 
-### 6.2 Data Imbalance
+### 7.2 Data Imbalance
 
 COVID-19 positive cases were underrepresented in our training data. We addressed this through:
 
@@ -375,7 +438,7 @@ COVID-19 positive cases were underrepresented in our training data. We addressed
 - Data augmentation for minority class
 - Evaluation metrics appropriate for imbalanced data (ROC AUC, PR AUC)
 
-### 6.3 Entity Extraction Challenges
+### 7.3 Entity Extraction Challenges
 
 Extracting medical entities from text proved challenging due to the variety of ways symptoms are described. We implemented multiple NER approaches to address this, combining their strengths:
 
@@ -383,11 +446,11 @@ Extracting medical entities from text proved challenging due to the variety of w
 - spaCy NER for context-aware extraction
 - Transformer-based NER for complex cases
 
-## 7. Future Directions
+## 8. Future Directions
 
 The current project demonstrates the potential of NLP for COVID-19 detection, but several promising directions for future work remain:
 
-### 7.1 Multimodal Integration
+### 8.1 Multimodal Integration
 
 Combining text analysis with other data types could enhance performance:
 
@@ -395,7 +458,7 @@ Combining text analysis with other data types could enhance performance:
 - Vital signs and continuous monitoring data
 - Genomic data for variant identification
 
-### 7.2 Expanded Clinical Applications
+### 8.2 Expanded Clinical Applications
 
 The techniques developed here could be adapted to other medical conditions:
 
@@ -403,7 +466,7 @@ The techniques developed here could be adapted to other medical conditions:
 - Rare disease detection from clinical descriptions
 - Mental health condition assessment from clinical notes
 
-### 7.3 Technical Enhancements
+### 8.3 Technical Enhancements
 
 Several technical improvements could further enhance the system:
 
@@ -413,7 +476,9 @@ Several technical improvements could further enhance the system:
 4. **Continuous Learning**: Updating models as new COVID variants emerge
 5. **Explainable AI**: Enhancing model interpretability for clinical users
 
-## 8. Conclusion
+## 9. Conclusion
+
+Our core problem focuses on detecting COVID-19 from unstructured clinical text. The motivation behind this project is to help clinicians and healthcare facilities triage patients more effectively and make quick, informed assessments—while also using limited resources more efficiently. The key question guiding our research is: Can advanced NLP techniques effectively analyze unstructured medical text to identify likely COVID-19 cases and support clinical decision-making? To answer this, we implemented a two-stage pipeline architecture and designed an interface to present results to stakeholders via a ChatBot. The ultimate goal is to automate the detection of COVID-19 from clinical notes, accelerating case identification and reducing the burden of manual review by tapping into the valuable, often overlooked data embedded in clinical documentation.
 
 This project demonstrates the potential of combining NER with transformer models to extract valuable diagnostic information from unstructured medical text. Our COVID-19 detection system achieves high performance metrics and provides an accessible interface for healthcare professionals through the Harvey chatbot.
 
